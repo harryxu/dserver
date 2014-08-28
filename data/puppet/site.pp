@@ -5,6 +5,8 @@
   #source => 'puppet:///files/apt/sources.list',
 #}
 
+include git
+
 include 'docker'
 
 class { 'ohmyzsh': }
