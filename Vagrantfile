@@ -56,6 +56,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
+  config.vm.provision "shell",
+    inline: "
+      sudo cp /data/puppet/files/apt/sources.list /etc/apt/sources.list
+    "
+
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
