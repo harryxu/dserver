@@ -1,0 +1,8 @@
+{
+  "LICENSE": "e8c1458438ead3c34974bc0be3a03ed6",
+  "Modulefile": "92748d17eefb43a1c4fba291be44b912",
+  "README.md": "1786f27af9f2eec6c6d916874f311103",
+  "manifests/init.pp": "61f106de5131ebdc9050ad480d71f4cb",
+  "manifests/install.pp": "238f437ca1ae3b83ee4a55cf9ad779e3",
+  "manifests/installation.pp": "d07f989016a1e547ba9006fcd79a33a2"
+}
