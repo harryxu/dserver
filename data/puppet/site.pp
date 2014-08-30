@@ -11,3 +11,7 @@ class { 'ohmyzsh': }
 ohmyzsh::install { ['vagrant', 'root']: }
 ohmyzsh::plugins { 'vagrant': plugins => 'git docker ' }
 ohmyzsh::theme { ['vagrant']: theme => 'robbyrussell' }
+
+import 'autojump.pp'
+autojump::install { 'vagrant': }
+
