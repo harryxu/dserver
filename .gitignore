@@ -1,5 +1,6 @@
 data/*
 !data/puppet/
+!data/www/
 
 # Created by http://www.gitignore.io
 

@@ -66,7 +66,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # You will need to create the manifests directory and a manifest in
   # the file base.pp in the manifests_path directory.
   config.vm.provision "puppet" do |puppet|
-    puppet.manifests_path = "data/puppet"
+    puppet.manifests_path = "data/puppet/manifests"
     puppet.manifest_file = "site.pp"
     puppet.module_path = "data/puppet/modules"
     puppet.options = "--fileserverconfig=/data/puppet/fileserver.conf"
