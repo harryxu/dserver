@@ -9,7 +9,9 @@
 
 ### 注意点1
 > windows用户要注意下，安装完VirtualBox后，需要把VirtualBox的安装目录添加到系统的环境变量中，不然vagrant会检查不到。
+>
 > 比如VirutalBox安装在D盘中，那么就是把 `D:\Program Files\Oracle\VirtualBox`这个路径添加到系统的`Path`环境变量中，如下图：
+>
 > ![enter image description here](https://moznia.by3302.livefilestore.com/y2p23Y9iuyRxDZKdNkJDlr4LZ8M4jZySgdbs6JJOZ7xf_xgDRmsZMol_BYtNp5pwBBkFdYc4BSq8dtuRWPaVs1-wgMahdHISeoZiu4oZuMTWw8/CF798CF7-D727-4388-8415-F38082BE7BF3.png?psid=1)
 
 ### 注意点2
