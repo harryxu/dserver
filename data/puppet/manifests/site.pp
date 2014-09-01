@@ -7,6 +7,11 @@ exec { "apt-update":
 }
 Exec["apt-update"] -> Package <| |>
 
+# timezone
+class { 'timezone':
+  timezone => 'Asia/Shanghai',
+}
+
 # Git
 include git
 
