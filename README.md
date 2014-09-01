@@ -19,7 +19,7 @@
 > 由于虚拟机中的操作系统使用的是64位系统，所以需要在BIOS中开启CPU的虚拟化技术。
 > 几个开启CPU虚拟化的参考网页：[参考1](http://support1.lenovo.com.cn/lenovo/wsi/htmls/detail_12668799330965621.html), [参考2](http://www.tongyongpe.com/n/201408/442.html), [参考3](http://www.newyx.net/gl/215905_1.htm)
 
-然后将本项目通过git克隆下来，然后进入项目目录运行 `vagrant up`。
+然后将本项目通过git克隆下来，然后进入项目目录运行 `vagrant up --provider=virtualbox`。
 
     git clone git@code.bigecko.com:vagrant/dev.git
     cd dev
