@@ -45,3 +45,14 @@ ohmyzsh::theme { ['vagrant']: theme => 'robbyrussell' }
 import 'autojump.pp'
 autojump::install { 'vagrant': }
 
+# vim
+package { 'vim':
+  ensure => 'present',
+}
+
+file { '/home/vagrant/.vimrc':
+  mode   => 644,
+  owner  => vagrant,
+  group  => vagrant,
+  source => "puppet:///files/vimrc"
+}
