@@ -10,7 +10,14 @@ pip::install { 'fig':
 }
 
 # apache, php, mysql
-include gr_apache
+class { apache:
+  default_vhost => false,
+  default_mods => true,
+  mpm_module => 'prefork',
+}
+
+apache::mod { 'rewrite': }
+
 include gr_php
 include xdebug
 package { libapache2-mod-php5:
@@ -23,7 +30,7 @@ apache::vhost { 'default_vhost':
   port          => '80',
   docroot       => '/data/www',
   override      => ['All'],
-  options       => ['Indexes', 'FollowSymLinks','MultiViews'],
+  options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
 }
 
 class { '::mysql::server':

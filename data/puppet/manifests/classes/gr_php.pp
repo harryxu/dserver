@@ -13,6 +13,7 @@ class gr_php {
   php::module { 'gd':
     service_autorestart => false,
   }
+  php::module { 'imagick': }
   php::module { 'mcrypt':
     service_autorestart => false,
   }
