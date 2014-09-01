@@ -24,6 +24,7 @@ define autojump::install ($user = $title) {
   file_line { 'zshrc::autojump':
     path => "/home/${user}/.zshrc",
     line => '[[ -s /home/vagrant/.autojump/etc/profile.d/autojump.sh ]] && source /home/vagrant/.autojump/etc/profile.d/autojump.sh',
+    require => Exec['autojump::install'],
   }
   file_line { 'zshrc::compinit':
     path => "/home/${user}/.zshrc",

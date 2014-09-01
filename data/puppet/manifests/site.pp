@@ -1,5 +1,13 @@
 import 'classes/*.pp'
 
+# This will ensure that the exec is run before any package.
+# http://stackoverflow.com/a/17689749/157811
+exec { "apt-update":
+  command => "/usr/bin/apt-get update"
+}
+Exec["apt-update"] -> Package <| |>
+
+# Git
 include git
 
 # docker, fig
