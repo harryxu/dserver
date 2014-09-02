@@ -46,14 +46,13 @@ apache::vhost { 'default_vhost':
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
 }
 
-class { '::mysql::server':
-}
+include '::mysql::server'
 
 # oh-my-zsh
 class { 'ohmyzsh': }
 ohmyzsh::install { ['vagrant', 'root']: }
 ohmyzsh::plugins { 'vagrant': plugins => 'git docker composer pip laravel4' }
-ohmyzsh::theme { ['vagrant']: theme => 'robbyrussell' }
+ohmyzsh::theme { ['vagrant', 'root']: theme => 'bira' }
 
 import 'autojump.pp'
 autojump::install { 'vagrant': }
