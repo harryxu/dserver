@@ -9,7 +9,9 @@ class gr_php {
     }
   }
 
-  class { 'php': }
+  class { 'php': 
+    source => 'puppet:///files/php5/apache2/php.ini',
+  }
   php::module { 'gd':
     service_autorestart => false,
   }
