@@ -56,3 +56,13 @@ web访问有3种方式：
 其中`data/puppet` 是存放puppet配置文件的，一般不需要去动。
 
 `data/www` 就是Apache的虚拟主机目录，可以直接把php等程序放在www目录中然后通过web访问测试即可。
+
+### 进入虚拟机操作以及vagrant相关命令
+要进入虚拟机系统进行操作，只需要执行 `vagrant ssh` 命令即可。
+
+启动虚拟机 `vagrant up`  
+关闭虚拟机 `vagrant halt`
+
+当根目录下的`Vagrantfile`文件发生过变化时，需要执行`vagrant reload`命令来使新的配置生效。
+
+更多关于vagrant的命令以及操作请参考 [官方文档](https://docs.vagrantup.com/v2/cli/index.html) 。
