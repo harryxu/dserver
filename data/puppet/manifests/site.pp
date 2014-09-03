@@ -57,6 +57,11 @@ ohmyzsh::theme { ['vagrant', 'root']: theme => 'bira' }
 import 'autojump.pp'
 autojump::install { 'vagrant': }
 
+# tmux
+package { 'tmux':
+  ensure => 'present',
+}
+
 # vim
 package { 'vim':
   ensure => 'present',
