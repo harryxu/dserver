@@ -3,6 +3,9 @@
 ## 简介
 概瑞开发服务器是使用[Vagrant](http://blog.segmentfault.com/fenbox/1190000000264347)来做虚拟机管理，操作系统采用的是64位的ubuntu14.04，然后通过[Puppet](http://baike.baidu.com/view/1794764.htm)来配置虚拟机里所需安装的软件和配置等。
 
+虚拟机中为我们的开发环境已安装好了：  
+[PHP](http://php.net/), [Composer](https://getcomposer.org/), [Apache](http://httpd.apache.org/), [MySQL](http://www.mysql.com/), [Git](http://git-scm.com/), [Docker](https://www.docker.com/), [fig](http://www.fig.sh/), [Vim](http://www.vim.org/), [autojump](https://github.com/joelthelion/autojump), [zsh](http://www.zsh.org/), [oh-my-zsh](http://ohmyz.sh/), [tmux](http://tmux.sourceforge.net/) 等软件。
+
 ## 安装
 先确保已安装了[VirtualBox](https://www.virtualbox.org/wiki/Downloads)和[Vagrant](http://www.vagrantup.com/downloads.html)。
 
