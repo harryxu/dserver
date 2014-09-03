@@ -36,6 +36,10 @@
 >![enter image description here](https://moznia.by3302.livefilestore.com/y2pFSJT0F9CDRBmBV8W72eKpUKuXP-WbhVYjuRfTj_rni7fiUsXbxghEM0Iaf20cs_jItTXdSM7iBdRHVrXUATCxilUNh2ZICV2IARywbyVnsQ/F1F14253-DAE7-49A0-8F1E-6B524F2ECA01.png?psid=1)
 >这是因为虚拟机需要配置公网IP，此时只要根据列出的上网设备列表，输入所需设备前面的数字然后回车即可。
 
+---
+> 在第一次启动时，有时候会由于一些不可控因素（如：网络延迟，不稳定等）造成puppet给虚拟机配置和安装软件的时候失败而出现错误退出。
+> 这时候只要虚拟机本身已经初始化完成并且可以启动的话，那么只要执行一次 `vagrant provision` 命令让vagrant尝试重新安装所需的软件和配置，这个命令可以重复多次执行，直到没有错误执行完成就行。
+
 ## 使用
 
 ### web访问
