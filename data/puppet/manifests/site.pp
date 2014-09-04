@@ -48,11 +48,21 @@ include apache::mod::php
 
 include '::mysql::server'
 
-
+# Add www-data to vagrant group.
+# http://serverfault.com/a/469973/95103
 exec {"www-data vagrant group":
   unless => "grep -q 'vagrant\\S*www-data' /etc/group",
   command => "usermod -aG vagrant www-data",
   path => ['/bin', '/usr/sbin'],
+  notify  => Class['Apache::Service'],
+  require => Package['httpd'],
+}
+
+# set apache2 umask to 002
+# http://serverfault.com/a/384922/95103
+file_line { 'apache2::umask':
+  path => '/etc/apache2/envvars',
+  line => 'umask 002',
   notify  => Class['Apache::Service'],
   require => Package['httpd'],
 }
