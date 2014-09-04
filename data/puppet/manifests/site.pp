@@ -31,13 +31,6 @@ class { apache:
 
 apache::mod { 'rewrite': }
 
-include gr_php
-include xdebug
-package { libapache2-mod-php5:
-  ensure => installed
-}
-include apache::mod::php
-
 apache::vhost { 'default_vhost':
   vhost_name    => '*',
   port          => '80',
@@ -46,7 +39,23 @@ apache::vhost { 'default_vhost':
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
 }
 
+include gr_php
+include xdebug
+package { libapache2-mod-php5:
+  ensure => installed
+}
+include apache::mod::php
+
 include '::mysql::server'
+
+
+exec {"www-data vagrant group":
+  unless => "grep -q 'vagrant\\S*www-data' /etc/group",
+  command => "usermod -aG vagrant www-data",
+  path => ['/bin', '/usr/sbin'],
+  notify  => Class['Apache::Service'],
+  require => Package['httpd'],
+}
 
 # oh-my-zsh
 class { 'ohmyzsh': }
