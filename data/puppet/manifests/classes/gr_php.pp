@@ -16,9 +16,16 @@ class gr_php {
     service_autorestart => false,
   }
   php::module { 'imagick': }
+
   php::module { 'mcrypt':
     service_autorestart => false,
+  } ->
+  exec { 'php::enable_mcrypt':
+    command => '/usr/sbin/php5enmod mcrypt',
+    creates => '/etc/php5/apache2/conf.d/20-mcrypt.ini',
+    user => 'root',
   }
+
   php::module { 'json':
     service_autorestart => false,
   }
