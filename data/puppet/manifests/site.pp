@@ -92,3 +92,9 @@ file { '/home/vagrant/.vimrc':
   group  => vagrant,
   source => "puppet:///files/vimrc"
 }
+
+file_line { 'default_editor':
+  line => 'export EDITOR=vim',
+  path => '/home/vagrant/.zshrc',
+  require => [Package['vim'], Package['zsh']],
+}
