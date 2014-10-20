@@ -46,7 +46,13 @@ package { libapache2-mod-php5:
 }
 include apache::mod::php
 
-include '::mysql::server'
+class { '::mysql::server':
+  override_options => {
+    'mysqld' => {
+      bind_address => '0.0.0.0',
+    }
+  }
+}
 
 # Add www-data to vagrant group.
 # http://serverfault.com/a/469973/95103
