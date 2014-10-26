@@ -1,4 +1,5 @@
 import 'classes/*.pp'
+import 'autojump.pp'
 
 # This will ensure that the exec is run before any package.
 # http://stackoverflow.com/a/17689749/157811
@@ -73,14 +74,6 @@ file_line { 'apache2::umask':
   require => Package['httpd'],
 }
 
-# oh-my-zsh
-class { 'ohmyzsh': }
-ohmyzsh::install { ['vagrant', 'root']: }
-ohmyzsh::plugins { 'vagrant': plugins => 'git docker composer pip laravel4' }
-ohmyzsh::theme { ['vagrant', 'root']: theme => 'bira' }
-
-import 'autojump.pp'
-autojump::install { 'vagrant': }
 
 # tmux
 package { 'tmux':
@@ -99,8 +92,11 @@ file { '/home/vagrant/.vimrc':
   source => "puppet:///files/vimrc"
 }
 
-file_line { 'default_editor':
-  line => 'export EDITOR=vim',
-  path => '/home/vagrant/.zshrc',
-  require => [Package['vim'], Package['zsh']],
+# prezto
+include prezto
+
+
+# autojump
+autojump::install { 'vagrant':
+  require => Class['prezto'],
 }
