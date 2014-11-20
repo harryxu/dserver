@@ -9,13 +9,14 @@ class gr_php {
     }
   }
 
-  class { 'php': 
+  class { 'php':
     source => 'puppet:///files/php5/apache2/php.ini',
   }
   php::module { 'gd':
     service_autorestart => false,
   }
   php::module { 'imagick': }
+  php::module { 'curl': }
 
   php::module { 'mcrypt':
     service_autorestart => false,
