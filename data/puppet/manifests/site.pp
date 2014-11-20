@@ -31,6 +31,7 @@ class { apache:
 }
 
 apache::mod { 'rewrite': }
+apache::mod { 'headers': }
 
 apache::vhost { 'default_vhost':
   vhost_name    => '*',
