@@ -17,6 +17,7 @@ class gr_php {
   }
   php::module { 'imagick': }
   php::module { 'curl': }
+  php::module { 'sqlite': }
 
   php::module { 'mcrypt':
     service_autorestart => false,
