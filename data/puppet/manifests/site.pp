@@ -52,6 +52,8 @@ class { '::mysql::server':
   override_options => {
     'mysqld' => {
       bind_address => '0.0.0.0',
+      character_set_server => 'utf8',
+      collation_server => 'utf8_general_ci',
     }
   }
 }
