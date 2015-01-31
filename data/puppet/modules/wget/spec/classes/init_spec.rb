@@ -2,6 +2,11 @@ require 'spec_helper'
 
 describe 'wget' do
 
+  let(:facts) { {
+    :operatingsystem => 'CentOS',
+    :kernel => 'Linux'
+  } }
+
   context 'no version specified', :compile do
     it { should contain_package('wget').with_ensure('present') }
   end

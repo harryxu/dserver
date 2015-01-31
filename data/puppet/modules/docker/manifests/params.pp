@@ -1,6 +1,6 @@
 # == Class: docker::params
 #
-# Defaut parameter values for the docker module
+# Default parameter values for the docker module
 #
 class docker::params {
   $version                      = undef
@@ -14,10 +14,20 @@ class docker::params {
   $root_dir                     = undef
   $tmp_dir                      = '/tmp/'
   $dns                          = undef
+  $dns_search                   = undef
   $proxy                        = undef
   $no_proxy                     = undef
   $execdriver                   = undef
   $storage_driver               = undef
+  $dm_basesize                  = undef
+  $dm_fs                        = undef
+  $dm_mkfsarg                   = undef
+  $dm_mountopt                  = undef
+  $dm_blocksize                 = undef
+  $dm_loopdatasize              = undef
+  $dm_loopmetadatasize          = undef
+  $dm_datadev                   = undef
+  $dm_metadatadev               = undef
   $manage_package               = true
   $manage_kernel                = true
   $package_name_default         = 'lxc-docker'
@@ -40,7 +50,9 @@ class docker::params {
       $package_source_location = 'https://get.docker.io/ubuntu'
     }
     'RedHat' : {
-      if (versioncmp($::operatingsystemrelease, '7.0') < 0) {
+      if $::operatingsystem == 'Fedora' {
+        $package_name   = 'docker-io'
+      } elsif (versioncmp($::operatingsystemrelease, '7.0') < 0) and $::operatingsystem != 'Amazon' {
         $package_name   = 'docker-io'
       } else {
         $package_name   = 'docker'
@@ -48,7 +60,17 @@ class docker::params {
       $package_source_location = ''
       $service_name   = $service_name_default
       $docker_command = $docker_command_default
+      unless versioncmp($::operatingsystemrelease, '7.0') < 0 {
+        include docker::systemd_reload
+      }
     }
+    'Archlinux' : {
+      $package_name   = 'docker'
+      $package_source_location = ''
+      $service_name   = $service_name_default
+      $docker_command = $docker_command_default
+      include docker::systemd_reload
+      }
     default: {
       $package_source_location = ''
       $package_name   = $package_name_default
@@ -56,4 +78,14 @@ class docker::params {
       $docker_command = $docker_command_default
     }
   }
+
+  # Special extra packages are required on some OSes.
+  # Specifically apparmor is needed for Ubuntu:
+  # https://github.com/docker/docker/issues/4734
+  $prerequired_packages = $::operatingsystem ? {
+    'Debian' => ['apt-transport-https', 'cgroupfs-mount'],
+    'Ubuntu' => ['apt-transport-https', 'cgroup-lite', 'apparmor'],
+    default  => [],
+  }
+
 }

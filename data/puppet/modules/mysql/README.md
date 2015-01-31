@@ -4,9 +4,9 @@
 
 1. [Overview](#overview)
 2. [Module Description - What the module does and why it is useful](#module-description)
+3. [Backwards compatibility information](#backwards-compatibility)
 3. [Setup - The basics of getting started with mysql](#setup)
     * [What mysql affects](#what-mysql-affects)
-    * [Setup requirements](#setup-requirements)
     * [Beginning with mysql](#beginning-with-mysql)
 4. [Usage - Configuration options and additional functionality](#usage)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
@@ -53,9 +53,10 @@ password or `/etc/my.cnf` settings, then you must also pass in an override hash:
 ```puppet
 class { '::mysql::server':
   root_password    => 'strongpassword',
-  override_options => { 'mysqld' => { 'max_connections' => '1024' } }
+  override_options => $override_options
 }
 ```
+(see 'Overrides' below for examples of the hash structure for `$override_options`)
 
 ##Usage
 
@@ -70,7 +71,7 @@ The hash structure for overrides in `mysql::server` is as follows:
 ```puppet
 $override_options = {
   'section' => {
-    'item'             => 'thing',
+    'item' => 'thing',
   }
 }
 ```
@@ -104,7 +105,7 @@ replicate-do-db = base2
 ###Custom configuration
 
 To add custom MySQL configuration, drop additional files into
-`/etc/mysql/conf.d/`. Dropping files into conf.d allows you to override settings or add additional ones, which is helpful if you choose not to use `override_options` in `mysql::server`. The conf.d location is hardcoded into the my.cnf template file.
+`includedir`. Dropping files into `includedir` allows you to override settings or add additional ones, which is helpful if you choose not to use `override_options` in `mysql::server`. The `includedir` location is by default set to /etc/mysql/conf.d.
 
 ##Reference
 
@@ -127,6 +128,7 @@ To add custom MySQL configuration, drop additional files into
 * `mysql::server::providers`: Creates users, grants, and databases.
 * `mysql::bindings::java`: Installs Java bindings.
 * `mysql::bindings::perl`: Installs Perl bindings.
+* `mysql::bindings::php`: Installs PHP bindings.
 * `mysql::bindings::python`: Installs Python bindings.
 * `mysql::bindings::ruby`: Installs Ruby bindings.
 * `mysql::client::install`:  Installs MySQL client.
@@ -173,9 +175,15 @@ The location of the MySQL configuration file.
 
 Whether the MySQL configuration file should be managed.
 
+#####`includedir`
+The location of !includedir for custom configuration overrides.
+
+#####`install_options`
+Pass install_options array to managed package resources. You must be sure to pass the appropriate options for the correct package manager.
+
 #####`purge_conf_dir`
 
-Whether the conf.d directory should be purged.
+Whether the `includedir` directory should be purged.
 
 #####`restart`
 
@@ -218,8 +226,8 @@ The provider to use to manage the service.
 
 Optional hash of users to create, which are passed to [mysql_user](#mysql_user). 
 
-```puppet
-$users = {
+```
+users => {
   'someuser@localhost' => {
     ensure                   => 'present',
     max_connections_per_hour => '0',
@@ -235,8 +243,8 @@ $users = {
 
 Optional hash of grants, which are passed to [mysql_grant](#mysql_grant). 
 
-```puppet
-$grants = {
+```
+grants => {
   'someuser@localhost/somedb.*' => {
     ensure     => 'present',
     options    => ['GRANT'],
@@ -251,8 +259,8 @@ $grants = {
 
 Optional hash of databases to create, which are passed to [mysql_database](#mysql_database).
 
-```puppet
-$databases = {
+```
+databases => {
   'somedb' => {
     ensure  => 'present',
     charset => 'utf8',
@@ -339,7 +347,28 @@ The password to create for MySQL monitoring.
 
 The hostname to allow to access the MySQL monitoring user.
 
+####mysql::server::mysqltuner
+
+***Note***
+
+If using this class on a non-network-connected system you must download the mysqltuner.pl script and have it hosted somewhere accessible via `http(s)://`, `puppet://`, `ftp://`, or a fully qualified file path.
+
+#####`ensure`
+
+Whether the file should be `present` or `absent`. Defaults to `present`.
+
+#####`version`
+
+The version to install from the major/MySQLTuner-perl github repository. Must be a valid tag. Defaults to 'v1.3.0'.
+
+#####`source`
+
+Parameter to optionally specify the source. If not specified, defaults to `https://github.com/major/MySQLTuner-perl/raw/${version}/mysqltuner.pl`
+
 ####mysql::bindings
+
+#####`install_options`
+Pass install_options array to managed package resources. You must be sure to pass the appropriate options for the correct package manager.
 
 #####`java_enable`
 
@@ -415,6 +444,9 @@ What provider should be used to install the package.
 
 Boolean to automatically install all bindings.
 
+#####`install_options`
+Pass install_options array to managed package resources. You must be sure to pass the appropriate options for the correct package manager.
+
 #####`package_ensure`
 
 What to set the package to.  Can be 'present', 'absent', or 'x.y.z'.
@@ -455,6 +487,23 @@ Then collect it on the remote DB server.
 
 ```puppet
     Mysql::Db <<| tag == $domain |>>
+```
+
+If you set the sql param to a file when creating a database,
+the file gets imported into the new database.
+
+For large sql files you should raise the $import_timeout parameter,
+set by default to 300 seconds
+
+```puppet
+    mysql::db { 'mydb':
+      user     => 'myuser',
+      password => 'mypass',
+      host     => 'localhost',
+      grant    => ['SELECT', 'UPDATE'],
+      sql      => '/path/to/sqlfile',
+      import_timeout => 900,
+    }
 ```
 
 ###Providers
@@ -502,6 +551,16 @@ mysql_grant { 'root@localhost/*.*':
   options    => ['GRANT'],
   privileges => ['ALL'],
   table      => '*.*',
+  user       => 'root@localhost',
+}
+```
+
+It is possible to specify privileges down to the column level:
+```puppet
+mysql_grant { 'root@localhost/mysql.user':
+  ensure     => 'present',
+  privileges => ['SELECT (Host, User)'],
+  table      => 'mysql.user',
   user       => 'root@localhost',
 }
 ```

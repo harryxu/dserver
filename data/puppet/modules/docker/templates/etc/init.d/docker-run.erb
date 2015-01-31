@@ -11,9 +11,9 @@
 # description: Docker container for <%= @title %>
 
 ### BEGIN INIT INFO
-## Provides:       docker-<%= @title %>
-## Required-Start: $network docker
-## Required-Stop: $network docker
+## Provides:       docker-<%= @sanitised_title %>
+## Required-Start: $network docker<% if @depends %><% @sanitised_depends_array.each do |d| %><%= " docker-#{d}" %><% end %><% end %>
+## Required-Stop: $network docker<% if @depends %><% @sanitised_depends_array.each do |d| %><%= " docker-#{d}" %><% end %><% end %>
 ## Should-Start:
 ## Should-Stop:
 ## Default-Start: 2 3 4 5
@@ -22,12 +22,38 @@
 ## Description: Docker container for <%= @title %>
 #### END INIT INFO
 
-. /etc/init.d/functions
+if [ -e /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+elif [ -e /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+    failure() {
+        log_failure_msg "$@"
+        return 1
+    }
+    success() {
+        log_success_msg "$@"
+        return 0
+    }
+else
+    failure() {
+        echo "fail: $@" >&2
+        exit 1
+    }
+    success() {
+        echo "success: $@" >&2
+        exit 0
+    }
+fi
 
-docker="/usr/bin/<%= docker_command %>"
-prog="docker-<%= @title %>"
+HOME=/root/
+docker="/usr/bin/<%= @docker_command %>"
+prog="docker-<%= @sanitised_title %>"
 cidfile="/var/run/$prog.cid"
-lockfile="/var/lock/subsys/$prog"
+if [ -d /var/lock/subsys ]; then
+    lockfile="/var/lock/subsys/$prog"
+else
+    unset lockfile
+fi
 
 start() {
     [ -x $docker ] || exit 5
@@ -49,42 +75,26 @@ start() {
     fi
 
     printf "Starting $prog:\t"
-    $docker run --cidfile=$cidfile -d=true \
-        <% if @username %>-u '<%= @username %>' <% end %> \
-        <% if @hostname %>-h '<%= @hostname %>'<% end %> \
-        <% if @disable_network %>-n false<% end %> \
-        <% if @privileged %>--privileged<% end %> \
-        <% if @dns %><% @dns_array.each do |address| %> \
-            --dns <%= address %><% end %> \
-        <% end %> \
-        <% if @env %><% @env_array.each do |env| %> \
-            -e <%= env %><% end %> \
-        <% end %> \
-        <% if @ports %><% @ports_array.each do |port| %> \
-            -p <%= port %><% end %> \
-        <% end %> \
-        <% if @expose %><% @expose_array.each do |expose_port| %> \
-            --expose=<%= expose_port %><% end %> \
-        <% end %> \
-        <% if @volumes %><% @volumes_array.each do |volume| %> \
-            -v <%= volume %><% end %> \
-        <% end %> \
-        <% if @volumes_from %> --volumes-from <%= @volumes_from %><% end %> \
-        <% if @net %>--net <%= @net %><% end %> \
-        <% if @lxc_conf_array %><% @lxc_conf_array.each do |lxcconf| %> \
-            --lxc-conf="<%=lxcconf%>"<% end %> \
-        <% end %> \
-        -m <%= @memory_limit %> \
-        <% if @links %><%= @links_array.map {|link| \
-            "--link #{link}" }.join(' ') %> \
-        <% end %> \
+    <% if @pull_on_start -%>
+        $docker pull <%= @image %>
+    <% end -%>
+    <% if @use_name -%>
+        $docker inspect <%= @name %> && $docker start <%= @name %>
+        $docker inspect <%= @name %> || $docker run --cidfile=$cidfile -d=true \
+    <% else -%>
+        $docker run --cidfile=$cidfile -d=true \
+    <% end -%>
+        <%= @docker_run_flags %> \
         <% if @use_name %>--name <%= @name %><% end %> \
+        <% if @extra_parameters %><% @extra_parameters_array.each do |param| %>  \
+            <%= param %> <% end %> \
+        <% end -%> \
         <%= @image %> \
-        <% if @command %> <%= @command %><% end %>
+       <% if @command %> <%= @command %><% end %>
     retval=$?
     echo
     if [ $retval -eq 0 ]; then
-        touch $lockfile
+	[ -n "$lockfile" ] && touch $lockfile
         success
     else
         failure
@@ -119,6 +129,10 @@ case "$1" in
     stop
     ;;
     status)
+    if [ "false" = "$(docker inspect --format='{{.State.Running}}' $(cat $cidfile))"  ] ; then
+        echo $prog not running
+        exit 1
+    fi
     docker inspect $(cat $cidfile)
     ;;
     restart|reload)
