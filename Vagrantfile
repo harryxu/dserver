@@ -55,6 +55,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   # View the documentation for the provider you're using for more
   # information on available options.
+  config.vm.provider "virtualbox" do |v|
+   v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+   v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
 
   config.vm.provision "shell",
     inline: "
