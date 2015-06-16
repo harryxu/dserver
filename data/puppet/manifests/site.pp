@@ -107,3 +107,15 @@ ohmyzsh::theme {
 autojump::install { 'vagrant':
   require => Class['ohmyzsh'],
 }
+
+# nodejs
+class { 'nodejs':
+  version => 'stable',
+}
+
+# npm global packages
+package { 'gulp':
+  provider => 'npm',
+  require  => Class['nodejs']
+}
+

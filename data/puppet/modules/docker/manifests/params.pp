@@ -7,8 +7,9 @@ class docker::params {
   $ensure                       = present
   $tcp_bind                     = undef
   $socket_bind                  = 'unix:///var/run/docker.sock'
+  $log_level                    = undef
+  $selinux_enabled              = undef
   $socket_group                 = undef
-  $use_upstream_package_source  = true
   $service_state                = running
   $service_enable               = true
   $root_dir                     = undef
@@ -33,6 +34,7 @@ class docker::params {
   $package_name_default         = 'lxc-docker'
   $service_name_default         = 'docker'
   $docker_command_default       = 'docker'
+  $docker_group_default         = 'docker'
   case $::osfamily {
     'Debian' : {
       case $::operatingsystem {
@@ -47,44 +49,84 @@ class docker::params {
           $docker_command = 'docker.io'
         }
       }
-      $package_source_location = 'https://get.docker.io/ubuntu'
+      $docker_group = $docker_group_default
+      $package_source_location     = 'https://get.docker.io/ubuntu'
+      $use_upstream_package_source = true
+      $detach_service_in_init = true
+      $repo_opt = undef
     }
     'RedHat' : {
       if $::operatingsystem == 'Fedora' {
         $package_name   = 'docker-io'
+        $use_upstream_package_source = false
       } elsif (versioncmp($::operatingsystemrelease, '7.0') < 0) and $::operatingsystem != 'Amazon' {
         $package_name   = 'docker-io'
+        $use_upstream_package_source = true
       } else {
         $package_name   = 'docker'
+        $use_upstream_package_source = false
       }
       $package_source_location = ''
       $service_name   = $service_name_default
       $docker_command = $docker_command_default
-      unless versioncmp($::operatingsystemrelease, '7.0') < 0 {
+      if versioncmp($::operatingsystemrelease, '7.0') < 0 {
+        $detach_service_in_init = true
+        $docker_group = $docker_group_default
+      } else {
+        $detach_service_in_init = false
+        $docker_group = 'dockerroot'
         include docker::systemd_reload
       }
+
+      # repo_opt to specify install_options for docker package
+      if (versioncmp($::operatingsystemmajrelease, '7') == 0) {
+        if $::operatingsystem == 'RedHat' {
+          $repo_opt = '--enablerepo=rhel7-extras'
+        } elsif $::operatingsystem == 'OracleLinux' {
+          $repo_opt = '--enablerepo=ol7_addons'
+        } elsif $::operatingsystem == 'Scientific' {
+          $repo_opt = '--enablerepo=sl-extras'
+        } else {
+          $repo_opt = undef
+        }
+      } else {
+        $repo_opt = undef
+      }
+
     }
     'Archlinux' : {
+      $docker_group = $docker_group_default
+      $package_source_location     = ''
+      $use_upstream_package_source = false
       $package_name   = 'docker'
-      $package_source_location = ''
       $service_name   = $service_name_default
       $docker_command = $docker_command_default
+      $detach_service_in_init = false
       include docker::systemd_reload
-      }
+      $repo_opt = undef
+    }
     default: {
-      $package_source_location = ''
+      $docker_group = $docker_group_default
+      $package_source_location     = ''
+      $use_upstream_package_source = true
       $package_name   = $package_name_default
       $service_name   = $service_name_default
       $docker_command = $docker_command_default
+      $detach_service_in_init = true
+      $repo_opt = undef
     }
   }
 
   # Special extra packages are required on some OSes.
   # Specifically apparmor is needed for Ubuntu:
   # https://github.com/docker/docker/issues/4734
-  $prerequired_packages = $::operatingsystem ? {
-    'Debian' => ['apt-transport-https', 'cgroupfs-mount'],
-    'Ubuntu' => ['apt-transport-https', 'cgroup-lite', 'apparmor'],
+  $prerequired_packages = $::osfamily ? {
+    'Debian' => $::operatingsystem ? {
+      'Debian' => ['apt-transport-https', 'cgroupfs-mount'],
+      'Ubuntu' => ['apt-transport-https', 'cgroup-lite', 'apparmor'],
+      default  => [],
+    },
+    'RedHat' => ['device-mapper'],
     default  => [],
   }
 
