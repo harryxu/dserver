@@ -92,11 +92,18 @@ file { '/home/vagrant/.vimrc':
   source => "puppet:///files/vimrc"
 }
 
-# prezto
-include prezto
+# ohmyzsh https://forge.puppetlabs.com/acme/ohmyzsh
+class { 'ohmyzsh': }
+ohmyzsh::install { ['root', 'vagrant']: }
+ohmyzsh::plugins {
+  'vagrant': plugins => 'git github composer larave5'
+}
+ohmyzsh::theme {
+  'vagrant': theme => 'avit'
+}
 
 
 # autojump
 autojump::install { 'vagrant':
-  require => Class['prezto'],
+  require => Class['ohmyzsh'],
 }
