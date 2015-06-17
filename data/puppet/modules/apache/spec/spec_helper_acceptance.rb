@@ -38,10 +38,17 @@ RSpec.configure do |c|
       end
       # Required for manifest to make mod_pagespeed repository available
       if fact('osfamily') == 'Debian'
-        on host, puppet('module','install','puppetlabs-apt'), { :acceptable_exit_codes => [0,1] }
+        on host, puppet('module','install','puppetlabs-apt', '--version 1.8.0', '--force'), { :acceptable_exit_codes => [0,1] }
       end
       on host, puppet('module','install','puppetlabs-stdlib'), { :acceptable_exit_codes => [0,1] }
-      on host, puppet('module','install','puppetlabs-concat'), { :acceptable_exit_codes => [0,1] }
+      on host, puppet('module','install','puppetlabs-concat', '--version 1.1.1', '--force'), { :acceptable_exit_codes => [0,1] }
+
+      # Make sure selinux is disabled before each test or apache won't work.
+      if ! UNSUPPORTED_PLATFORMS.include?(fact('osfamily'))
+        on host, puppet('apply', '-e',
+                          %{"exec { 'setenforce 0': path   => '/bin:/sbin:/usr/bin:/usr/sbin', onlyif => 'which setenforce && getenforce | grep Enforcing', }"}),
+                          { :acceptable_exit_codes => [0] }
+      end
     end
   end
 end

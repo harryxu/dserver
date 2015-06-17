@@ -17,6 +17,7 @@ describe 'apache::custom_config', :type => :define do
       :id                     => 'root',
       :kernel                 => 'Linux',
       :path                   => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+      :is_pe                  => false,
     }
   end
   context 'defaults with content' do
@@ -29,7 +30,7 @@ describe 'apache::custom_config', :type => :define do
       'refreshonly' => 'true',
       'subscribe'   => 'File[apache_rspec]',
       'command'     => '/usr/sbin/apachectl -t',
-      'notify'      => 'Service[httpd]',
+      'notify'      => 'Class[Apache::Service]',
       'before'      => 'Exec[remove rspec if invalid]',
     })
     }
@@ -82,7 +83,7 @@ describe 'apache::custom_config', :type => :define do
     it { is_expected.to_not contain_exec('service notify for rspec') }
     it { is_expected.to_not contain_exec('remove rspec if invalid') }
     it { is_expected.to contain_file('apache_rspec').with({
-      'notify' => 'Service[httpd]'
+      'notify' => 'Class[Apache::Service]'
     })
     }
   end
@@ -109,14 +110,14 @@ describe 'apache::custom_config', :type => :define do
       end
       it do
         expect {
-          should compile
+          catalogue
         }.to raise_error(Puppet::Error, /Only one of \$content and \$source can be specified\./)
       end
     end
     context 'neither content nor source' do
       it do
         expect {
-          should compile
+          catalogue
         }.to raise_error(Puppet::Error, /One of \$content and \$source must be specified\./)
       end
     end
@@ -129,7 +130,7 @@ describe 'apache::custom_config', :type => :define do
       end
       it do
         expect {
-          should compile
+          catalogue
         }.to raise_error(Puppet::Error, /is not supported for ensure/)
       end
     end

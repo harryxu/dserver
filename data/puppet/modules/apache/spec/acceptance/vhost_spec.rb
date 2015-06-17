@@ -103,6 +103,7 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
             { 'path' => '/foo', 'url' => 'http://backend-foo/'},
           ],
         proxy_preserve_host   => true,
+        proxy_error_override  => true,
         }
       EOS
       apply_manifest(pp, :catch_failures => true)
@@ -113,6 +114,34 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
       it { is_expected.to contain "ServerName proxy.example.com" }
       it { is_expected.to contain "ProxyPass" }
       it { is_expected.to contain "ProxyPreserveHost On" }
+      it { is_expected.to contain "ProxyErrorOverride On" }
+      it { is_expected.not_to contain "<Proxy \*>" }
+    end
+  end
+
+  context 'new proxy vhost on port 80' do
+    it 'should configure an apache proxy vhost' do
+      pp = <<-EOS
+        class { 'apache': }
+        apache::vhost { 'proxy.example.com':
+          port    => '80',
+          docroot => '/var/www/proxy',
+          proxy_pass_match => [
+            { 'path' => '/foo', 'url' => 'http://backend-foo/'},
+          ],
+        proxy_preserve_host   => true,
+        proxy_error_override  => true,
+        }
+      EOS
+      apply_manifest(pp, :catch_failures => true)
+    end
+
+    describe file("#{$vhost_dir}/25-proxy.example.com.conf") do
+      it { is_expected.to contain '<VirtualHost \*:80>' }
+      it { is_expected.to contain "ServerName proxy.example.com" }
+      it { is_expected.to contain "ProxyPassMatch /foo http://backend-foo/" }
+      it { is_expected.to contain "ProxyPreserveHost On" }
+      it { is_expected.to contain "ProxyErrorOverride On" }
       it { is_expected.not_to contain "<Proxy \*>" }
     end
   end
@@ -379,7 +408,7 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
 
   case fact('lsbdistcodename')
   when 'precise', 'wheezy'
-    context 'vhost fallbackresouce example' do
+    context 'vhost fallbackresource example' do
       it 'should configure a vhost with Fallbackresource' do
         pp = <<-EOS
         class { 'apache': }
@@ -470,6 +499,47 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
           port       => '80',
           add_listen => false,
           proxy_pass => {
+            'path' => '/',
+            'url'  => 'http://localhost:8888/subdir/',
+          },
+        }
+        host { 'proxy.example.com': ip => '127.0.0.1', }
+        file { ['/var/www/local', '/var/www/local/subdir']: ensure => directory, }
+        file { '/var/www/local/subdir/index.html':
+          ensure  => file,
+          content => "Hello from localhost\\n",
+        }
+                     }, :catch_failures => true)
+    end
+
+    describe service($service_name) do
+      it { is_expected.to be_enabled }
+      it { is_expected.to be_running }
+    end
+
+    it 'should get a response from the back end' do
+      shell("/usr/bin/curl --max-redirs 0 proxy.example.com:80") do |r|
+        expect(r.stdout).to eq("Hello from localhost\n")
+        expect(r.exit_code).to eq(0)
+      end
+    end
+  end
+
+  context 'proxy_pass_match for alternative vhost' do
+    it 'should configure a local vhost and a proxy vhost' do
+      apply_manifest(%{
+        class { 'apache': default_vhost => false, }
+        apache::vhost { 'localhost':
+          docroot => '/var/www/local',
+          ip      => '127.0.0.1',
+          port    => '8888',
+        }
+        apache::listen { '*:80': }
+        apache::vhost { 'proxy.example.com':
+          docroot    => '/var/www',
+          port       => '80',
+          add_listen => false,
+          proxy_pass_match => {
             'path' => '/',
             'url'  => 'http://localhost:8888/subdir/',
           },
@@ -761,6 +831,34 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
     end
   end
 
+  describe 'multiple access_logs' do
+    it 'applies cleanly' do
+      pp = <<-EOS
+        class { 'apache': }
+        host { 'test.server': ip => '127.0.0.1' }
+        apache::vhost { 'test.server':
+          docroot            => '/tmp',
+          logroot            => '/tmp',
+          access_logs => [
+            {'file' => 'log1'},
+            {'file' => 'log2', 'env' => 'admin' },
+            {'file' => '/var/tmp/log3', 'format' => '%h %l'},
+            {'syslog' => 'syslog' }
+          ]
+        }
+      EOS
+      apply_manifest(pp, :catch_failures => true)
+    end
+
+    describe file("#{$vhost_dir}/25-test.server.conf") do
+      it { is_expected.to be_file }
+      it { is_expected.to contain 'CustomLog "/tmp/log1" combined' }
+      it { is_expected.to contain 'CustomLog "/tmp/log2" combined env=admin' }
+      it { is_expected.to contain 'CustomLog "/var/tmp/log3" "%h %l"' }
+      it { is_expected.to contain 'CustomLog "syslog" combined' }
+    end
+  end
+
   describe 'aliases' do
     it 'applies cleanly' do
       pp = <<-EOS
@@ -971,6 +1069,7 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
             { comment => 'test',
               rewrite_cond => '%{HTTP_USER_AGENT} ^Lynx/ [OR]',
               rewrite_rule => ['^index\.html$ welcome.html'],
+              rewrite_map  => ['lc int:tolower'],
             }
           ],
         }
@@ -983,6 +1082,7 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
       it { is_expected.to contain '#test' }
       it { is_expected.to contain 'RewriteCond %{HTTP_USER_AGENT} ^Lynx/ [OR]' }
       it { is_expected.to contain 'RewriteRule ^index.html$ welcome.html' }
+      it { is_expected.to contain 'RewriteMap lc int:tolower' }
     end
   end
 
@@ -1187,7 +1287,7 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
   describe 'additional_includes' do
     it 'applies cleanly' do
       pp = <<-EOS
-        if $::osfamily == 'RedHat' and $::selinux == 'true' {
+        if $::osfamily == 'RedHat' and $::selinux {
           $semanage_package = $::operatingsystemmajrelease ? {
             '5'     => 'policycoreutils',
             default => 'policycoreutils-python',
@@ -1223,4 +1323,20 @@ describe 'apache::vhost define', :unless => UNSUPPORTED_PLATFORMS.include?(fact(
     end
   end
 
+  describe 'virtualhost without priority prefix' do
+    it 'applies cleanly' do
+      pp = <<-EOS
+        class { 'apache': }
+        apache::vhost { 'test.server':
+          priority => false,
+          docroot => '/tmp'
+        }
+      EOS
+      apply_manifest(pp, :catch_failures => true)
+    end
+
+    describe file("#{$vhost_dir}/test.server.conf") do
+      it { is_expected.to be_file }
+    end
+  end
 end

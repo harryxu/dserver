@@ -1,3 +1,141 @@
+##2015-06-11 - Supported Release 1.5.0
+### Summary
+This release primarily adds Suse compatibility. It also adds a handful of other
+parameters for greater configuration control.
+
+### Features
+- Add `apache::lib_path` parameter
+- Add `apache::service_restart` parameter
+- Add `apache::vhost::geoip_enable` parameter
+- Add `apache::mod::geoip` class
+- Add `apache::mod::remoteip` class
+- Add parameters to `apache::mod::expires` class
+- Add `index_style_sheet` handling to `apache::vhost::directories`
+- Add some compatibility for SLES 11
+- Add `apache::mod::ssl::ssl_sessioncachetimeout` parameter
+- Add `apache::mod::ssl::ssl_cryptodevice` parameter
+- Add `apache::mod::ssl::ssl_honorcipherorder` parameter
+- Add `apache::mod::userdir::options` parameter
+
+### Bugfixes
+- Document `apache::user` parameter
+- Document `apache::group` parameter
+- Fix apache::dev on FreeBSD
+- Fix proxy\_connect on apache >= 2.2
+- Validate log levels better
+- Fix `apache::apache_name` for package and vhost
+- Fix Debian Jessie mod\_prefork package name
+- Fix alias module being declared even when vhost is absent
+- Fix proxy\_pass\_match handling in vhost's proxy template
+- Fix userdir access permissions
+- Fix issue where the module was trying to use systemd on Amazon Linux.
+
+##2015-04-28 - Supported Release 1.4.1
+
+This release corrects a metadata issue that has been present since release 1.2.0. The refactoring of `apache::vhost` to use `puppetlabs-concat` requires a version of concat newer than the version required in PE. If you are using PE 3.3.0 or earlier you will need to use version 1.1.1 or earlier of the `puppetlabs-apache` module.
+
+##2015-03-17 - Supported Release 1.4.0
+###Summary
+
+This release fixes the issue where the docroot was still managed even if the default vhosts were disabled and has many other features and bugfixes including improved support for 'deny' and 'require' as arrays in the 'directories' parameter under `apache::vhost`
+
+####Features
+- New parameters to `apache`
+  - `default_charset`
+  - `default_type`
+- New parameters to `apache::vhost`
+  - `proxy_error_override`
+  - `passenger_app_env` (MODULES-1776)
+  - `proxy_dest_match`
+  - `proxy_dest_reverse_match`
+  - `proxy_pass_match`
+  - `no_proxy_uris_match`
+- New parameters to `apache::mod::passenger`
+  - `passenger_app_env`
+  - `passenger_min_instances`
+- New parameter to `apache::mod::alias`
+  - `icons_options`
+- New classes added under `apache::mod::*`
+  - `authn_file`
+  - `authz_default`
+  - `authz_user`
+- Added support for 'deny' as an array in 'directories' under `apache::vhost`
+- Added support for RewriteMap
+- Improved support for FreeBSD. (Note: If using apache < 2.4.12, see the discussion [here](https://github.com/puppetlabs/puppetlabs-apache/pull/1030))
+- Added check for deprecated options in directories and fail when they are unsupported
+- Added gentoo compatibility
+- Added proper array support for `require` in the `directories` parameter in `apache::vhost`
+- Added support for `setenv` inside proxy locations
+
+###Bugfixes
+- Fix issue in `apache::vhost` that was preventing the scriptalias fragment from being included (MODULES-1784)
+- Install required `mod_ldap` package for EL7 (MODULES-1779)
+- Change default value of `maxrequestworkers` in `apache::mod::event` to be a multiple of the default `ThreadsPerChild` of 25.
+- Use the correct `mod_prefork` package name for trusty and jessie
+- Don't manage docroot when default vhosts are disabled
+- Ensure resources notify `Class['Apache::Service']` instead of `Service['httpd']` (MODULES-1829)
+- Change the loadfile name for `mod_passenger` so `mod_proxy` will load by default before `mod_passenger`
+- Remove old Debian work-around that removed `passenger_extra.conf`
+
+##2015-02-17 - Supported Release 1.3.0
+###Summary
+
+This release has many new features and bugfixes, including the ability to optionally not trigger service restarts on config changes.
+
+####Features
+- New parameters - `apache`
+  - `service_manage`
+  - `use_optional_includes`
+- New parameters - `apache::service`
+  - `service_manage`
+- New parameters - `apache::vhost`
+  - `access_logs`
+  - `php_flags`
+  - `php_values`
+  - `modsec_disable_vhost`
+  - `modsec_disable_ids`
+  - `modsec_disable_ips`
+  - `modsec_body_limit`
+- Improved FreeBSD support
+- Add ability to omit priority prefix if `$priority` is set to false
+- Add `apache::security::rule_link` define
+- Improvements to `apache::mod::*`
+  - Add `apache::mod::auth_cas` class
+  - Add `threadlimit`, `listenbacklog`, `maxrequestworkers`, `maxconnectionsperchild` parameters to `apache::mod::event`
+  - Add `apache::mod::filter` class
+  - Add `root_group` to `apache::mod::php`
+  - Add `apache::mod::proxy_connect` class
+  - Add `apache::mod::security` class
+  - Add `ssl_pass_phrase_dialog` and `ssl_random_seed_bytes parameters to `apache::mod::ssl` (MODULES-1719)
+  - Add `status_path` parameter to `apache::mod::status`
+  - Add `apache_version` parameter to `apache::mod::version`
+  - Add `package_name` and `mod_path` parameters to `apache::mod::wsgi` (MODULES-1458)
+- Improved SCL support
+  - Add support for specifying the docroot
+- Updated `_directories.erb` to add support for SetEnv
+- Support multiple access log directives (MODULES-1382)
+- Add passenger support for Debian Jessie
+- Add support for not having puppet restart the apache service (MODULES-1559)
+
+####Bugfixes
+- For apache 2.4 `mod_itk` requires `mod_prefork` (MODULES-825)
+- Allow SSLCACertificatePath to be unset in `apache::vhost` (MODULES-1457)
+- Load fcgid after unixd on RHEL7
+- Allow disabling default vhost for Apache 2.4
+- Test fixes
+- `mod_version` is now built-in (MODULES-1446)
+- Sort LogFormats for idempotency
+- `allow_encoded_slashes` was omitted from `apache::vhost`
+- Fix documentation bug (MODULES-1403, MODULES-1510)
+- Sort `wsgi_script_aliases` for idempotency (MODULES-1384)
+- lint fixes
+- Fix automatic version detection for Debian Jessie
+- Fix error docs and icons path for RHEL7-based systems (MODULES-1554)
+- Sort php_* hashes for idempotency (MODULES-1680)
+- Ensure `mod::setenvif` is included if needed (MODULES-1696)
+- Fix indentation in `vhost/_directories.erb` template (MODULES-1688)
+- Create symlinks on all distros if `vhost_enable_dir` is specified
+
 ##2014-09-30 - Supported Release 1.2.0
 ###Summary
 

@@ -17,6 +17,7 @@ class apache (
   $service_name           = $::apache::params::service_name,
   $default_mods           = true,
   $default_vhost          = true,
+  $default_charset        = undef,
   $default_confd_files    = true,
   $default_ssl_vhost      = false,
   $default_ssl_cert       = $::apache::params::default_ssl_cert,
@@ -26,9 +27,12 @@ class apache (
   $default_ssl_crl_path   = undef,
   $default_ssl_crl        = undef,
   $default_ssl_crl_check  = undef,
+  $default_type           = 'none',
   $ip                     = undef,
   $service_enable         = true,
+  $service_manage         = true,
   $service_ensure         = 'running',
+  $service_restart        = undef,
   $purge_configs          = true,
   $purge_vhost_dir        = undef,
   $purge_vdir             = false,
@@ -45,6 +49,7 @@ class apache (
   $mod_dir                = $::apache::params::mod_dir,
   $mod_enable_dir         = $::apache::params::mod_enable_dir,
   $mpm_module             = $::apache::params::mpm_module,
+  $lib_path               = $::apache::params::lib_path,
   $conf_template          = $::apache::params::conf_template,
   $servername             = $::apache::params::servername,
   $manage_user            = true,
@@ -53,7 +58,7 @@ class apache (
   $group                  = $::apache::params::group,
   $keepalive              = $::apache::params::keepalive,
   $keepalive_timeout      = $::apache::params::keepalive_timeout,
-  $max_keepalive_requests = $apache::params::max_keepalive_requests,
+  $max_keepalive_requests = $::apache::params::max_keepalive_requests,
   $logroot                = $::apache::params::logroot,
   $logroot_mode           = $::apache::params::logroot_mode,
   $log_level              = $::apache::params::log_level,
@@ -66,12 +71,15 @@ class apache (
   $trace_enable           = 'On',
   $allow_encoded_slashes  = undef,
   $package_ensure         = 'installed',
+  $use_optional_includes  = $::apache::params::use_optional_includes,
 ) inherits ::apache::params {
   validate_bool($default_vhost)
   validate_bool($default_ssl_vhost)
   validate_bool($default_confd_files)
   # true/false is sufficient for both ensure and enable
   validate_bool($service_enable)
+  validate_bool($service_manage)
+  validate_bool($use_optional_includes)
 
   $valid_mpms_re = $apache_version ? {
     '2.4'   => '(event|itk|peruser|prefork|worker)',
@@ -118,15 +126,14 @@ class apache (
     }
   }
 
-  $valid_log_level_re = '(emerg|alert|crit|error|warn|notice|info|debug)'
-
-  validate_re($log_level, $valid_log_level_re,
-  "Log level '${log_level}' is not one of the supported Apache HTTP Server log levels.")
+  validate_apache_log_level($log_level)
 
   class { '::apache::service':
-    service_name   => $service_name,
-    service_enable => $service_enable,
-    service_ensure => $service_ensure,
+    service_name    => $service_name,
+    service_enable  => $service_enable,
+    service_manage  => $service_manage,
+    service_ensure  => $service_ensure,
+    service_restart => $service_restart,
   }
 
   # Deprecated backwards-compatibility
@@ -242,23 +249,43 @@ class apache (
       'debian': {
         $pidfile              = "\${APACHE_PID_FILE}"
         $error_log            = 'error.log'
-        $error_documents_path = '/usr/share/apache2/error'
         $scriptalias          = '/usr/lib/cgi-bin'
         $access_log_file      = 'access.log'
       }
       'redhat': {
         $pidfile              = 'run/httpd.pid'
         $error_log            = 'error_log'
-        $error_documents_path = '/var/www/error'
         $scriptalias          = '/var/www/cgi-bin'
         $access_log_file      = 'access_log'
       }
       'freebsd': {
         $pidfile              = '/var/run/httpd.pid'
         $error_log            = 'httpd-error.log'
-        $error_documents_path = '/usr/local/www/apache22/error'
-        $scriptalias          = '/usr/local/www/apache22/cgi-bin'
+        $scriptalias          = '/usr/local/www/apache24/cgi-bin'
         $access_log_file      = 'httpd-access.log'
+      } 'gentoo': {
+        $pidfile              = '/run/apache2.pid'
+        $error_log            = 'error.log'
+        $error_documents_path = '/usr/share/apache2/error'
+        $scriptalias          = '/var/www/localhost/cgi-bin'
+        $access_log_file      = 'access.log'
+
+        ::portage::makeconf { 'apache2_modules':
+          content => $default_mods,
+        }
+        file { [
+          '/etc/apache2/modules.d/.keep_www-servers_apache-2',
+          '/etc/apache2/vhosts.d/.keep_www-servers_apache-2'
+        ]:
+          ensure  => absent,
+          require => Package['httpd'],
+        }
+      }
+      'Suse': {
+        $pidfile              = '/var/run/httpd2.pid'
+        $error_log            = 'error.log'
+        $scriptalias          = '/usr/lib/cgi-bin'
+        $access_log_file      = 'access.log'
       }
       default: {
         fail("Unsupported osfamily ${::osfamily}")
@@ -336,6 +363,7 @@ class apache (
       priority        => '15',
       ip              => $ip,
       logroot_mode    => $logroot_mode,
+      manage_docroot  => $default_vhost,
     }
     $ssl_access_log_file = $::osfamily ? {
       'freebsd' => $access_log_file,
@@ -352,6 +380,7 @@ class apache (
       priority        => '15',
       ip              => $ip,
       logroot_mode    => $logroot_mode,
+      manage_docroot  => $default_ssl_vhost,
     }
   }
 }
