@@ -26,13 +26,6 @@ set mouse=a
 set nu
 
 set cursorline
-
-if !has('Win32')
-    set list
-    "set listchars=tab:·\ ,trail:·,eol:¬
-    set listchars=tab:·\ ,trail:·
-endif
-
 set shiftround
 set linebreak
 let &showbreak='↪ '

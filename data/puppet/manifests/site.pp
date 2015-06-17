@@ -113,6 +113,12 @@ class { 'nodejs':
   version => 'stable',
 }
 
+file_line { 'nodejs_btn_path':
+  path => '/home/vagrant/.zshrc',
+  line => 'export PATH=/usr/local/node/node-default/bin:$PATH',
+  require => Class['ohmyzsh']
+}
+
 # npm global packages
 package { 'gulp':
   provider => 'npm',
