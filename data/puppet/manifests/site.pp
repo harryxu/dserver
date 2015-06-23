@@ -15,10 +15,9 @@ include git
 
 # docker, fig
 include 'docker'
+
+# pip
 include pip
-pip::install { 'fig':
- ensure => present,
-}
 
 # apache, php, mysql
 class { apache:
