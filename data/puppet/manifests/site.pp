@@ -54,6 +54,22 @@ class { '::mysql::server':
   }
 }
 
+mysql_user { 'root@%':
+  ensure                   => 'present',
+  max_connections_per_hour => '0',
+  max_queries_per_hour     => '0',
+  max_updates_per_hour     => '0',
+  max_user_connections     => '0',
+}
+
+mysql_grant { 'root@%/*.*':
+  ensure     => 'present',
+  options    => ['GRANT'],
+  privileges => ['ALL'],
+  table      => '*.*',
+  user       => 'root@%',
+}
+
 # Add www-data to vagrant group.
 # http://serverfault.com/a/469973/95103
 exec {"www-data vagrant group":
@@ -123,4 +139,3 @@ package { 'gulp':
   provider => 'npm',
   require  => Class['nodejs']
 }
-
