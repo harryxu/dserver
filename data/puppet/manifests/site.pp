@@ -115,7 +115,7 @@ ohmyzsh::plugins {
   'vagrant': plugins => 'git github composer larave5'
 }
 ohmyzsh::theme {
-  'vagrant': theme => 'avit'
+  'vagrant': theme => 'blinks'
 }
 
 
