@@ -24,6 +24,7 @@ class { apache:
   default_vhost => false,
   default_mods => true,
   mpm_module => 'prefork',
+  sendfile => 'Off',
 }
 
 apache::mod { 'rewrite': }
