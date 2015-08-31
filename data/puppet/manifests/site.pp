@@ -24,6 +24,7 @@ class { apache:
   default_vhost => false,
   default_mods => true,
   mpm_module => 'prefork',
+  sendfile => 'Off',
 }
 
 apache::mod { 'rewrite': }
@@ -114,7 +115,7 @@ ohmyzsh::plugins {
   'vagrant': plugins => 'git github composer larave5'
 }
 ohmyzsh::theme {
-  'vagrant': theme => 'avit'
+  'vagrant': theme => 'blinks'
 }
 
 
