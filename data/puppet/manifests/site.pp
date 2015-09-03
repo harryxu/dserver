@@ -61,6 +61,7 @@ mysql_user { 'root@%':
   max_queries_per_hour     => '0',
   max_updates_per_hour     => '0',
   max_user_connections     => '0',
+  require => Class['::mysql::server'],
 }
 
 mysql_grant { 'root@%/*.*':
@@ -69,6 +70,7 @@ mysql_grant { 'root@%/*.*':
   privileges => ['ALL'],
   table      => '*.*',
   user       => 'root@%',
+  require => Class['::mysql::server'],
 }
 
 # Add www-data to vagrant group.
@@ -132,7 +134,7 @@ class { 'nodejs':
 file_line { 'nodejs_btn_path':
   path => '/home/vagrant/.zshrc',
   line => 'export PATH=/usr/local/node/node-default/bin:$PATH',
-  require => Class['ohmyzsh']
+  require => Class['ohmyzsh', 'nodejs']
 }
 
 # npm global packages
