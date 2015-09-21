@@ -31,6 +31,7 @@ class docker::params {
   $dm_metadatadev               = undef
   $manage_package               = true
   $manage_kernel                = true
+  $manage_epel                  = true
   $package_name_default         = 'lxc-docker'
   $service_name_default         = 'docker'
   $docker_command_default       = 'docker'
@@ -50,10 +51,11 @@ class docker::params {
         }
       }
       $docker_group = $docker_group_default
-      $package_source_location     = 'https://get.docker.io/ubuntu'
+      $package_source_location     = 'https://get.docker.com/ubuntu'
       $use_upstream_package_source = true
       $detach_service_in_init = true
       $repo_opt = undef
+      $nowarn_kernel = false
     }
     'RedHat' : {
       if $::operatingsystem == 'Fedora' {
@@ -71,7 +73,11 @@ class docker::params {
       $docker_command = $docker_command_default
       if versioncmp($::operatingsystemrelease, '7.0') < 0 {
         $detach_service_in_init = true
-        $docker_group = $docker_group_default
+        if $::operatingsystem == 'OracleLinux' {
+          $docker_group = 'dockerroot'
+        } else {
+          $docker_group = $docker_group_default
+        }
       } else {
         $detach_service_in_init = false
         $docker_group = 'dockerroot'
@@ -89,10 +95,14 @@ class docker::params {
         } else {
           $repo_opt = undef
         }
+      } elsif (versioncmp($::operatingsystemrelease, '7.0') < 0 and $::operatingsystem == 'OracleLinux') {
+          # FIXME is 'public_ol6_addons' available on all OL6 installs?
+          $repo_opt = '--enablerepo=public_ol6_addons,public_ol6_latest'
       } else {
         $repo_opt = undef
       }
-
+      if $::kernelversion == '2.6.32' { $nowarn_kernel = true }
+      else { $nowarn_kernel = false }
     }
     'Archlinux' : {
       $docker_group = $docker_group_default
@@ -104,6 +114,7 @@ class docker::params {
       $detach_service_in_init = false
       include docker::systemd_reload
       $repo_opt = undef
+      $nowarn_kernel = false
     }
     default: {
       $docker_group = $docker_group_default
@@ -114,6 +125,7 @@ class docker::params {
       $docker_command = $docker_command_default
       $detach_service_in_init = true
       $repo_opt = undef
+      $nowarn_kernel = false
     }
   }
 

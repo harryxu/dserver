@@ -2,7 +2,9 @@ import 'classes/*.pp'
 import 'autojump.pp'
 
 class { 'apt':
-  apt_update_frequency => 'weekly',
+    update => {
+        frequency => 'daily',
+    },
 }
 
 # timezone

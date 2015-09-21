@@ -42,7 +42,7 @@
 #
 # [*package_source_location*]
 #   If you're using an upstream package source, what is it's
-#   location. Defaults to https://get.docker.io/ubuntu on Debian
+#   location. Defaults to https://get.docker.com/ubuntu on Debian
 #
 # [*service_state*]
 #   Whether you want to docker daemon to start up
@@ -140,8 +140,11 @@
 #   Default is set on a per system basis in docker::params
 #
 # [*docker_users*]
-#   Specifc a array of users to add to the docker group
+#   Specify an array of users to add to the docker group
 #   Default is empty
+#
+# [*repo_opt*]
+#   Specify a string to pass as repository options (RedHat only)
 #
 class docker(
   $version                     = $docker::params::version,
@@ -177,10 +180,13 @@ class docker(
   $dm_metadatadev              = $docker::params::dm_metadatadev,
   $execdriver                  = $docker::params::execdriver,
   $manage_package              = $docker::params::manage_package,
+  $manage_epel                 = $docker::params::manage_epel,
   $package_name                = $docker::params::package_name,
   $service_name                = $docker::params::service_name,
   $docker_command              = $docker::params::docker_command,
   $docker_users                = [],
+  $repo_opt                    = $docker::params::repo_opt,
+  $nowarn_kernel               = $docker::params::nowarn_kernel,
 ) inherits docker::params {
 
   validate_string($version)
@@ -222,7 +228,7 @@ class docker(
 
   # Only bother trying extra docker stuff after docker has been installed,
   # and is running.
-  Class['docker'] -> Docker::Run <||>
+  Class['docker'] -> Docker::Registry <||> -> Docker::Run <||>
   Class['docker'] -> Docker::Image <||>
 
 }

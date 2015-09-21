@@ -20,7 +20,7 @@ describe 'docker', :type => :class do
         it { should contain_class('apt') }
         it { should contain_package('apt-transport-https').that_comes_before('Package[docker]') }
         it { should contain_package('docker').with_name('lxc-docker').with_ensure('present') }
-        it { should contain_apt__source('docker').with_location('https://get.docker.io/ubuntu') }
+        it { should contain_apt__source('docker').with_location('https://get.docker.com/ubuntu') }
         it { should contain_file('/etc/init.d/docker').with_ensure('link').with_target('/lib/init/upstart-job') }
         it { should contain_package('docker').with_install_options(nil) }
 
@@ -327,6 +327,10 @@ describe 'docker', :type => :class do
     } }
 
     it { should contain_class('epel') }
+    context 'with no epel repo' do
+      let(:params) { {'manage_epel' => false } }
+      it { should_not contain_class('epel') }
+    end
     it { should contain_package('docker').with_name('docker-io').with_ensure('present') }
     it { should_not contain_apt__source('docker') }
     it { should_not contain_package('linux-image-extra-3.8.0-29-generic') }
@@ -335,6 +339,26 @@ describe 'docker', :type => :class do
       let(:params) { {'use_upstream_package_source' => false } }
       it { should_not contain_class('epel') }
     end
+  end
+
+  context 'RedHat 6.5 with patched Docker kernel' do
+    let(:facts) { {
+      :osfamily => 'RedHat',
+      :operatingsystem => 'RedHat',
+      :operatingsystemrelease => '6.5',
+      :kernelversion => '2.6.32'
+    } }
+    it { should contain_file('/etc/sysconfig/docker').with_content(/DOCKER_NOWARN_KERNEL_VERSION=1/) }
+  end
+
+  context 'RedHat 6.5 without patched Docker kernel' do
+    let(:facts) { {
+      :osfamily => 'RedHat',
+      :operatingsystem => 'RedHat',
+      :operatingsystemrelease => '6.5',
+      :kernelversion => '2.6.31'
+    } }
+    it { should_not contain_file('/etc/sysconfig/docker').with_content(/DOCKER_NOWARN_KERNEL_VERSION=1/) }
   end
 
   context 'specific to Fedora 21 or above' do
@@ -359,6 +383,11 @@ describe 'docker', :type => :class do
     it { should contain_package('docker').with_name('docker') }
     it { should_not contain_class('epel') }
     it { should contain_package('docker').with_install_options('--enablerepo=rhel7-extras') }
+
+    let(:params) { {'proxy' => 'http://127.0.0.1:3128' } }
+    service_config_file = '/etc/sysconfig/docker'
+    it { should contain_file(service_config_file).with_content(/^http_proxy='http:\/\/127.0.0.1:3128'/) }
+    it { should contain_file(service_config_file).with_content(/^  https_proxy='http:\/\/127.0.0.1:3128'/) }
 
   end
 

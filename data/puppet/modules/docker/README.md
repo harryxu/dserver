@@ -205,22 +205,26 @@ docker::run { 'helloworld':
   use_name        => true,
   volumes         => ['/var/lib/couchdb', '/var/log'],
   volumes_from    => '6446ea52fbc9',
-  memory_limit    => 10m, # (format: <number><unit>, where unit = b, k, m or g)
+  memory_limit    => '10m', # (format: '<number><unit>', where unit = b, k, m or g)
   cpuset          => ['0', '3'],
   username        => 'example',
   hostname        => 'example.com',
   env             => ['FOO=BAR', 'FOO2=BAR2'],
+  env_file        => ['/etc/foo', '/etc/bar'],
   dns             => ['8.8.8.8', '8.8.4.4'],
   restart_service => true,
   privileged      => false,
   pull_on_start   => false,
+  before_stop     => 'echo "So Long, and Thanks for All the Fish"',
   depends         => [ 'container_a', 'postgres' ],
 }
 ```
 
-Ports, expose, env, dns and volumes can be set with either a single string or as above with an array of values.
+Ports, expose, env, env_file, dns and volumes can be set with either a single string or as above with an array of values.
 
 Specifying `pull_on_start` will pull the image before each time it is started.
+
+Specifying `before_stop` will execute a command before stopping the container.
 
 The `depends` option allows expressing containers that must be started before. This affects the generation of the init.d/systemd script.
 
@@ -238,10 +242,43 @@ docker::run { 'helloworld':
 If using hiera, there's a docker::run_instance class you can configure, for example:
 
 ```yaml
-docker::run_instance:
-  helloworld:
-    image: 'ubuntu:precise'
-    command: '/bin/sh -c "while true; do echo hello world; sleep 1; done"'
+---
+  classes:
+    - docker::run_instance
+    
+  docker::run_instance::instance:
+    helloworld:
+      image: 'ubuntu:precise'
+      command: '/bin/sh -c "while true; do echo hello world; sleep 1; done"'
+```
+
+### Private registries
+By default images will be pushed and pulled from [index.docker.io](http://index.docker.io) unless you've specified a server. If you have your own private registry without authentication, you can fully qualify your image name. If your private registry requires authentication you may configure a registry:
+
+```puppet
+docker::registry { 'example.docker.io:5000':
+  username => 'user',
+  password => 'secret',
+  email    => 'user@example.com',
+}
+```
+
+You can logout of a registry if it is no longer required.
+
+```puppet
+docker::registry { 'example.docker.io:5000':
+  ensure => 'absent',
+}
+```
+
+If using hiera, there's a docker::registry_auth class you can configure, for example:
+
+```yaml
+docker::registry_auth::registries:
+  'example.docker.io:5000':
+    username: 'user1'
+    password: 'secret'
+    email: 'user1@example.io'
 ```
 
 ### Exec
