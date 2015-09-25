@@ -1,13 +1,15 @@
 class gr_php {
 
-  case $operatingsystem {
-    ubuntu: {
-      if defined('apt') == false {
-        class { 'apt': }
-      }
-      apt::ppa { 'ppa:ondrej/php5-oldstable': }
+    case $operatingsystem {
+        ubuntu: {
+            if defined('apt') == false {
+                class { 'apt': }
+            }
+            apt::ppa { 'ppa:ondrej/php5-oldstable':
+                require => Package['software-properties-common', 'python-software-properties']
+            }
+        }
     }
-  }
 
   class { 'php':
     source => 'puppet:///files/php5/apache2/php.ini',

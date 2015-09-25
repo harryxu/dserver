@@ -12,6 +12,14 @@ class { 'timezone':
   timezone => 'Asia/Shanghai',
 }
 
+package { 'software-properties-common':
+  ensure => 'present',
+}
+
+package { 'python-software-properties':
+  ensure => 'present',
+}
+
 # Git
 include git
 
