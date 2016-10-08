@@ -1,6 +1,3 @@
-import 'classes/*.pp'
-import 'autojump.pp'
-
 class { 'apt':
     update => {
         frequency => 'daily',
@@ -48,8 +45,6 @@ apache::vhost { 'default_vhost':
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
 }
 
-include gr_php
-include xdebug
 package { libapache2-mod-php5:
   ensure => installed
 }
@@ -114,10 +109,10 @@ package { 'vim':
 }
 
 file { '/home/vagrant/.vimrc':
-  mode   => 644,
+  mode   => '644',
   owner  => vagrant,
   group  => vagrant,
-  source => "puppet:///files/vimrc"
+  source => 'puppet:///files/vimrc'
 }
 
 # ohmyzsh https://forge.puppetlabs.com/acme/ohmyzsh

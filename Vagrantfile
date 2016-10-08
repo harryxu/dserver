@@ -11,11 +11,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "trusty64"
+  config.vm.box = "xenial64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vbox.box"
+  config.vm.box_url = "https://atlas.hashicorp.com/ubuntu/boxes/xenial64"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -60,18 +60,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
 
-  config.vm.provision "shell",
-    inline: "
-      sudo cp /data/puppet/files/apt/sources.list /etc/apt/sources.list
-    "
+  config.vm.provision "shell", inline: <<-SHELL
+    # sudo apt-get update
+    # wget -O - https://raw.githubusercontent.com/petems/puppet-install-shell/master/install_puppet_agent.sh | sudo sh
+    sudo cp /data/puppet/files/apt/sources.list /etc/apt/sources.list
+  SHELL
 
+  
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
   # the file base.pp in the manifests_path directory.
   config.vm.provision "puppet" do |puppet|
-    puppet.manifests_path = "data/puppet/manifests"
-    puppet.manifest_file = "site.pp"
+    puppet.environment_path = "data/puppet"
+    puppet.environment = "prod"
     puppet.module_path = "data/puppet/modules"
     puppet.options = "--fileserverconfig=/data/puppet/fileserver.conf"
   end
