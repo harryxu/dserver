@@ -1,11 +1,16 @@
+# == Class: apt
 #
-class apt(
+# Manage APT (Advanced Packaging Tool)
+#
+class apt (
+  $confs    = {},
   $update   = {},
   $purge    = {},
   $proxy    = {},
   $sources  = {},
   $keys     = {},
   $ppas     = {},
+  $pins     = {},
   $settings = {},
 ) inherits ::apt::params {
 
@@ -45,6 +50,9 @@ class apt(
   $_purge = merge($::apt::purge_defaults, $purge)
 
   validate_hash($proxy)
+  if $proxy['ensure'] {
+    validate_re($proxy['ensure'], ['file', 'present', 'absent'])
+  }
   if $proxy['host'] {
     validate_string($proxy['host'])
   }
@@ -59,13 +67,16 @@ class apt(
 
   $_proxy = merge($apt::proxy_defaults, $proxy)
 
+  validate_hash($confs)
   validate_hash($sources)
   validate_hash($keys)
   validate_hash($settings)
   validate_hash($ppas)
+  validate_hash($pins)
 
-  if $proxy['host'] {
+  if $_proxy['ensure'] == 'absent' or $_proxy['host'] {
     apt::setting { 'conf-proxy':
+      ensure   => $_proxy['ensure'],
       priority => '01',
       content  => template('apt/_conf_header.erb', 'apt/proxy.erb'),
     }
@@ -133,6 +144,9 @@ class apt(
     notify  => Class['apt::update'],
   }
 
+  if $confs {
+    create_resources('apt::conf', $confs)
+  }
   # manage sources if present
   if $sources {
     create_resources('apt::source', $sources)
@@ -148,5 +162,10 @@ class apt(
   # manage settings if present
   if $settings {
     create_resources('apt::setting', $settings)
+  }
+
+  # manage pins if present
+  if $pins {
+    create_resources('apt::pin', $pins)
   }
 }

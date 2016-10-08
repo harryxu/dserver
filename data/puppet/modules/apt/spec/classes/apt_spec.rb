@@ -91,6 +91,14 @@ describe 'apt' do
         /Acquire::https::proxy "https:\/\/localhost:8080\/";/
       )}
     end
+
+    context 'ensure=absent' do
+      let(:params) { { :proxy => { 'ensure' => 'absent'} } }
+      it { is_expected.to contain_apt__setting('conf-proxy').with({
+        :ensure   => 'absent',
+        :priority => '01',
+      })}
+    end
   end
   context 'lots of non-defaults' do
     let :params do
@@ -169,6 +177,32 @@ describe 'apt' do
     it { is_expected.to contain_file('/etc/apt/sources.list.d/puppetlabs.list').with_content(/^deb http:\/\/apt.puppetlabs.com precise main$/) }
   end
 
+  context 'with confs defined on valid osfamily' do
+    let :facts do
+      { :osfamily        => 'Debian',
+        :lsbdistcodename => 'precise',
+        :lsbdistid       => 'Debian',
+        :puppetversion   => Puppet.version,
+      }
+    end
+    let(:params) { { :confs => {
+      'foo' => {
+        'content' => 'foo',
+      },
+      'bar' => {
+        'content' => 'bar',
+      }
+    } } }
+
+    it { is_expected.to contain_apt__conf('foo').with({
+        :content => 'foo',
+    })}
+
+    it { is_expected.to contain_apt__conf('bar').with({
+        :content => 'bar',
+    })}
+  end
+
   context 'with keys defined on valid osfamily' do
     let :facts do
       { :osfamily        => 'Debian',
@@ -200,6 +234,7 @@ describe 'apt' do
       { :osfamily        => 'Debian',
         :lsbdistcodename => 'precise',
         :lsbdistid       => 'ubuntu',
+        :lsbdistrelease  => '12.04',
         :puppetversion   => Puppet.version,
       }
     end
@@ -227,6 +262,23 @@ describe 'apt' do
 
     it { is_expected.to contain_apt__setting('conf-banana')}
     it { is_expected.to contain_apt__setting('pref-banana')}
+  end
+
+  context 'with pins defined on valid osfamily' do
+    let :facts do
+      { :osfamily        => 'Debian',
+        :lsbdistcodename => 'precise',
+        :lsbdistid       => 'Debian',
+        :puppetversion   => Puppet.version,
+      }
+    end
+    let(:params) { { :pins => {
+      'stable' => { 'priority' => 600, 'order' => 50 },
+      'testing' =>  { 'priority' => 700, 'order' => 100 },
+    } } }
+
+    it { is_expected.to contain_apt__pin('stable') }
+    it { is_expected.to contain_apt__pin('testing') }
   end
 
   describe 'failing tests' do

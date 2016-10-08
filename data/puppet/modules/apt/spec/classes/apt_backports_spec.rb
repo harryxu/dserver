@@ -14,11 +14,11 @@ describe 'apt::backports', :type => :class do
         }
       end
       it { is_expected.to contain_apt__source('backports').with({
-        :location => 'http://ftp.debian.org/debian/',
+        :location => 'http://httpredir.debian.org/debian',
         :key      => 'A1BD8E9D78F7FE5C3E65D8AF8B48AD6246925553',
         :repos    => 'main contrib non-free',
         :release  => 'wheezy-backports',
-        :pin      => 200,
+        :pin      => { 'priority' => 200, 'release' => 'wheezy-backports' },
       })
       }
     end
@@ -32,11 +32,11 @@ describe 'apt::backports', :type => :class do
         }
       end
       it { is_expected.to contain_apt__source('backports').with({
-        :location => 'http://backports.debian.org/debian-backports',
+        :location => 'http://httpredir.debian.org/debian-backports',
         :key      => 'A1BD8E9D78F7FE5C3E65D8AF8B48AD6246925553',
         :repos    => 'main contrib non-free',
         :release  => 'squeeze-backports',
-        :pin      => 200,
+        :pin      => { 'priority' => 200, 'release' => 'squeeze-backports' },
       })
       }
     end
@@ -46,6 +46,7 @@ describe 'apt::backports', :type => :class do
           :lsbdistid       => 'Ubuntu',
           :osfamily        => 'Debian',
           :lsbdistcodename => 'trusty',
+          :lsbdistrelease  => '14.04',
           :puppetversion   => Puppet.version,
         }
       end
@@ -54,7 +55,7 @@ describe 'apt::backports', :type => :class do
         :key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
         :repos    => 'main universe multiverse restricted',
         :release  => 'trusty-backports',
-        :pin      => 200,
+        :pin      => { 'priority' => 200, 'release' => 'trusty-backports' },
       })
       }
     end
@@ -64,6 +65,7 @@ describe 'apt::backports', :type => :class do
           :lsbdistid       => 'Ubuntu',
           :osfamily        => 'Debian',
           :lsbdistcodename => 'trusty',
+          :lsbdistrelease  => '14.04',
           :puppetversion   => Puppet.version,
         }
       end
@@ -81,7 +83,7 @@ describe 'apt::backports', :type => :class do
         :key      => 'A1BD8E9D78F7FE5C3E65D8AF8B48AD6246925553',
         :repos    => 'main',
         :release  => 'vivid',
-        :pin      => 90,
+        :pin      => { 'priority' => 90, 'release' => 'vivid' },
       })
       }
     end
@@ -91,6 +93,7 @@ describe 'apt::backports', :type => :class do
           :lsbdistid       => 'Ubuntu',
           :osfamily        => 'Debian',
           :lsbdistcodename => 'trusty',
+          :lsbdistrelease  => '14.04',
           :puppetversion   => Puppet.version,
         }
       end
@@ -134,7 +137,7 @@ describe 'apt::backports', :type => :class do
         :key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
         :repos    => 'main universe multiverse restricted',
         :release  => 'trusty-backports',
-        :pin      => 200,
+        :pin      => { 'priority' => 200, 'release' => 'trusty-backports' },
       })
       }
     end
@@ -201,6 +204,7 @@ describe 'apt::backports', :type => :class do
         :lsbdistid       => 'Ubuntu',
         :osfamily        => 'Debian',
         :lsbdistcodename => 'trusty',
+        :lsbdistrelease  => '14.04',
         :puppetversion   => Puppet.version,
       }
     end

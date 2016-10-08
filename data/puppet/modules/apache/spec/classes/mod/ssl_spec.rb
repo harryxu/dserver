@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe 'apache::mod::ssl', :type => :class do
-  let :pre_condition do
-    'include apache'
-  end
+  it_behaves_like "a mod class, without including apache"
   context 'on an unsupported OS' do
     let :facts do
       {
@@ -100,6 +98,22 @@ describe 'apache::mod::ssl', :type => :class do
     it { is_expected.to contain_apache__mod('ssl') }
   end
 
+  context 'on a Suse OS' do
+    let :facts do
+      {
+        :osfamily               => 'Suse',
+        :operatingsystem        => 'SLES',
+        :operatingsystemrelease => '11.2',
+        :concat_basedir         => '/dne',
+        :id                     => 'root',
+        :kernel                 => 'Linux',
+        :path                   => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin',
+        :is_pe                  => false,
+      }
+    end
+    it { is_expected.to contain_class('apache::params') }
+    it { is_expected.to contain_apache__mod('ssl') }
+  end
   # Template config doesn't vary by distro
   context "on all distros" do
     let :facts do
@@ -144,6 +158,15 @@ describe 'apache::mod::ssl', :type => :class do
         }
       end
       it { is_expected.to contain_file('ssl.conf').with_content(/^\s+SSLOpenSSLConfCmd DHParameters "foo.pem"$/)}
+    end
+
+    context 'setting ssl_mutex' do
+      let :params do
+        {
+          :ssl_mutex => 'posixsem',
+        }
+      end
+      it { is_expected.to contain_file('ssl.conf').with_content(%r{^  SSLMutex posixsem$})}
     end
   end
 end
