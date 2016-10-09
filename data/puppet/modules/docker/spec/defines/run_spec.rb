@@ -1,22 +1,52 @@
 require 'spec_helper'
 
-['Debian', 'RedHat', 'Archlinux'].each do |osfamily|
-
+['Debian', 'RedHat', 'Archlinux', 'Amazon', 'Gentoo'].each do |osfamily|
   describe 'docker::run', :type => :define do
-    let(:facts) { {:osfamily => osfamily} }
     let(:title) { 'sample' }
 
     context "on #{osfamily}" do
 
     if osfamily == 'Debian'
+      let(:facts) { {
+        :osfamily               => 'Debian',
+        :lsbdistid              => 'Ubuntu',
+        :operatingsystem        => 'Ubuntu',
+        :lsbdistcodename        => 'trusty',
+        :operatingsystemrelease => '14.04',
+        :kernelrelease          => '3.8.0-29-generic'
+      } }
       initscript = '/etc/init.d/docker-sample'
-      command = 'docker.io'
+      command = 'docker'
       systemd = false
     elsif osfamily == 'Archlinux'
+      let(:facts) { {:osfamily => osfamily} }
       initscript = '/etc/systemd/system/docker-sample.service'
       command = 'docker'
       systemd = true
+    elsif osfamily == 'Gentoo'
+      let(:facts) { {:osfamily => osfamily} }
+      initscript = '/etc/init.d/docker-sample'
+      command = 'docker'
+      systemd = false
+    elsif osfamily == 'RedHat'
+      let(:facts) { {
+        :osfamily => 'RedHat',
+        :operatingsystem => 'RedHat',
+        :operatingsystemrelease => '6.6',
+        :operatingsystemmajrelease => '6',
+        :kernelversion => '2.6.32',
+      } }
+      initscript = '/etc/init.d/docker-sample'
+      command = 'docker'
+      systemd = false
     else
+      let(:facts) { {
+        :osfamily => 'RedHat',
+        :operatingsystem => 'Amazon',
+        :operatingsystemrelease => '2015.09',
+        :operatingsystemmajrelease => '2015',
+        :kernelversion => '2.6.32',
+      } }
       initscript = '/etc/init.d/docker-sample'
       command = 'docker'
       systemd = false
@@ -26,6 +56,7 @@ require 'spec_helper'
       let(:params) { {'command' => 'command', 'image' => 'base'} }
       it { should compile.with_all_deps }
       it { should contain_service('docker-sample') }
+      it { should_not contain_service('docker') }
       if (osfamily == 'Debian')
         it { should contain_file(initscript).with_content(/\$docker run/) }
         it { should contain_file(initscript).with_content(/#{command}/) }
@@ -39,18 +70,163 @@ require 'spec_helper'
       end
     end
 
+    context 'when passing `after` containers' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'after' => ['foo', 'bar']} }
+      if (systemd)
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?docker-foo.service/) }
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?docker-bar.service/) }
+        it { should contain_file(initscript).with_content(/Wants=(.*\s+)?docker-foo.service/) }
+        it { should contain_file(initscript).with_content(/Wants=(.*\s+)?docker-bar.service/) }
+      else
+        if (osfamily == 'Gentoo')
+          it { should contain_file(initscript).with_content(/after.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/after.*\s+docker-bar/) }
+        else
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-bar/) }
+        end
+      end
+    end
+
     context 'when passing `depends` containers' do
       let(:params) { {'command' => 'command', 'image' => 'base', 'depends' => ['foo', 'bar']} }
       if (systemd)
-        it { should contain_file(initscript).with_content(/After=.*\s+docker-foo.service/) }
-        it { should contain_file(initscript).with_content(/After=.*\s+docker-bar.service/) }
-        it { should contain_file(initscript).with_content(/Requires=.*\s+docker-foo.service/) }
-        it { should contain_file(initscript).with_content(/Requires=.*\s+docker-bar.service/) }
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?docker-foo.service/) }
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?docker-bar.service/) }
+        it { should contain_file(initscript).with_content(/Requires=(.*\s+)?docker-foo.service/) }
+        it { should contain_file(initscript).with_content(/Requires=(.*\s+)?docker-bar.service/) }
       else
-        it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-foo/) }
-        it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-bar/) }
-        it { should contain_file(initscript).with_content(/Required-Stop:.*\s+docker-foo/) }
-        it { should contain_file(initscript).with_content(/Required-Stop:.*\s+docker-bar/) }
+        if (osfamily == 'Gentoo')
+          it { should contain_file(initscript).with_content(/after.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/after.*\s+docker-bar/) }
+          it { should contain_file(initscript).with_content(/need.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/need.*\s+docker-bar/) }
+        else
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+docker-bar/) }
+          it { should contain_file(initscript).with_content(/Required-Stop:.*\s+docker-foo/) }
+          it { should contain_file(initscript).with_content(/Required-Stop:.*\s+docker-bar/) }
+        end
+      end
+    end
+
+    context 'when passing `depend_services`' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'depend_services' => ['foo', 'bar']} }
+      if (systemd)
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?foo.service/) }
+        it { should contain_file(initscript).with_content(/After=(.*\s+)?bar.service/) }
+        it { should contain_file(initscript).with_content(/Requires=(.*\s+)?foo.service/) }
+        it { should contain_file(initscript).with_content(/Requires=(.*\s+)?bar.service/) }
+      else
+        if (osfamily == 'Gentoo')
+          it { should contain_file(initscript).with_content(/after.*\s+foo/) }
+          it { should contain_file(initscript).with_content(/after.*\s+bar/) }
+          it { should contain_file(initscript).with_content(/need.*\s+foo/) }
+          it { should contain_file(initscript).with_content(/need.*\s+bar/) }
+        else
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+foo/) }
+          it { should contain_file(initscript).with_content(/Required-Start:.*\s+bar/) }
+          it { should contain_file(initscript).with_content(/Required-Stop:.*\s+foo/) }
+          it { should contain_file(initscript).with_content(/Required-Stop:.*\s+bar/) }
+        end
+      end
+    end
+
+    context 'removing containers and volumes' do
+      context 'when trying to remove the volume and not the container on stop' do
+        let(:params) {{
+          'command' => 'command',
+          'image' => 'base',
+          'remove_container_on_stop' => false,
+          'remove_volume_on_stop' => true,
+        }}
+        it do
+          expect {
+            should contain_service('docker-sample')
+          }.to raise_error(Puppet::Error)
+        end
+      end
+
+      context 'when trying to remove the volume and not the container on start' do
+        let(:params) {{
+          'command' => 'command',
+          'image' => 'base',
+          'remove_container_on_start' => false,
+          'remove_volume_on_start' => true,
+        }}
+        it do
+          expect {
+            should contain_service('docker-sample')
+          }.to raise_error(Puppet::Error)
+        end
+      end
+
+      context 'when not removing containers on container start and stop' do
+        let(:params) {{
+          'command' => 'command',
+          'image' => 'base',
+          'remove_container_on_start' => false,
+          'remove_container_on_stop' => false,
+        }}
+        if (systemd)
+          it { should_not contain_file(initscript).with_content(/ExecStartPre=-\/usr\/bin\/docker rm/) }
+        else
+          it { should_not contain_file(initscript).with_content(/\$docker rm  sample/) }
+        end
+      end
+
+      context 'when removing containers on container start' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_container_on_start' => true} }
+        if (systemd)
+          it { should contain_file(initscript).with_content(/ExecStartPre=-\/usr\/bin\/docker rm/) }
+        else
+          it { should contain_file(initscript).with_content(/\$docker rm  sample/) }
+        end
+      end
+
+      context 'when removing containers on container stop' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_container_on_stop' => true} }
+        if (systemd)
+          it { should contain_file(initscript).with_content(/ExecStop=-\/usr\/bin\/docker rm/) }
+        else
+          it { should contain_file(initscript).with_content(/\$docker rm  sample/) }
+        end
+      end
+
+      context 'when not removing volumes on container start' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_volume_on_start' => false} }
+        if (systemd)
+          it { should_not contain_file(initscript).with_content(/ExecStartPre=-\/usr\/bin\/docker rm -v/) }
+        else
+          it { should_not contain_file(initscript).with_content(/\$docker rm -v sample/) }
+        end
+      end
+
+      context 'when removing volumes on container start' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_volume_on_start' => true} }
+        if (systemd)
+          it { should contain_file(initscript).with_content(/ExecStartPre=-\/usr\/bin\/docker rm -v/) }
+        else
+          it { should contain_file(initscript).with_content(/\$docker rm -v/) }
+        end
+      end
+
+      context 'when not removing volumes on container stop' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_volume_on_stop' => false} }
+        if (systemd)
+          it { should_not contain_file(initscript).with_content(/ExecStop=-\/usr\/bin\/docker rm -v/) }
+        else
+          it { should_not contain_file(initscript).with_content(/\$docker rm -v sample/) }
+        end
+      end
+
+      context 'when removing volumes on container stop' do
+        let(:params) { {'command' => 'command', 'image' => 'base', 'remove_volume_on_stop' => true} }
+        if (systemd)
+          it { should contain_file(initscript).with_content(/ExecStop=-\/usr\/bin\/docker rm -v/) }
+        else
+          it { should contain_file(initscript).with_content(/\$docker rm -v/) }
+        end
       end
     end
 
@@ -131,6 +307,11 @@ require 'spec_helper'
       it { should contain_file(initscript).with_content(/--expose=4666/) }
     end
 
+    context 'when passing a label' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'labels' => 'key=value'} }
+      it { should contain_file(initscript).with_content(/-l key=value/) }
+    end
+
     context 'when passing a hostentry' do
       let(:params) { {'command' => 'command', 'image' => 'base', 'hostentries' => 'dummyhost:127.0.0.2'} }
       it { should contain_file(initscript).with_content(/--add-host dummyhost:127.0.0.2/) }
@@ -150,6 +331,11 @@ require 'spec_helper'
     context 'when passing several port numbers' do
       let(:params) { {'command' => 'command', 'image' => 'base', 'ports' => ['4444', '4555']} }
       it { should contain_file(initscript).with_content(/-p 4444/).with_content(/-p 4555/) }
+    end
+
+    context 'when passing several labels' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'labels' => ['key1=value1', 'key2=value2']} }
+      it { should contain_file(initscript).with_content(/-l key1=value1/).with_content(/-l key2=value2/) }
     end
 
     context 'when passing several ports to expose' do
@@ -272,6 +458,16 @@ require 'spec_helper'
       it { should_not contain_file(initscript).with_content(/docker pull base/) }
     end
 
+    context 'when `before_start` is set' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'before_start' => "echo before_start" } }
+      it { should contain_file(initscript).with_content(/before_start/) }
+    end
+
+    context 'when `before_start` is not set' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'before_start' => false } }
+      it { should_not contain_file(initscript).with_content(/before_start/) }
+    end
+
     context 'when `before_stop` is set' do
       let(:params) { {'command' => 'command', 'image' => 'base', 'before_stop' => "echo before_stop" } }
       it { should contain_file(initscript).with_content(/before_stop/) }
@@ -378,13 +574,102 @@ require 'spec_helper'
       end
     end
 
-    context 'with restart policy' do
+    context 'with restart policy set to no' do
       let(:params) { {'restart' => 'no', 'command' => 'command', 'image' => 'base', 'extra_parameters' => '-c 4'} }
       it { should contain_exec('run sample with docker') }
       it { should contain_exec('run sample with docker').with_unless(/\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_unless(/-a/) }
       it { should contain_exec('run sample with docker').with_command(/--cidfile=\/var\/run\/docker-sample.cid/) }
       it { should contain_exec('run sample with docker').with_command(/-c 4/) }
+      it { should contain_exec('run sample with docker').with_command(/--restart="no"/) }
       it { should contain_exec('run sample with docker').with_command(/base command/) }
+      it { should contain_exec('run sample with docker').with_timeout(0) }
+    end
+
+    context 'with restart policy set to always' do
+      let(:params) { {'restart' => 'always', 'command' => 'command', 'image' => 'base', 'extra_parameters' => '-c 4'} }
+      it { should contain_exec('run sample with docker') }
+      it { should contain_exec('run sample with docker').with_unless(/\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_unless(/-a/) }
+      it { should contain_exec('run sample with docker').with_command(/--cidfile=\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_command(/-c 4/) }
+      it { should contain_exec('run sample with docker').with_command(/--restart="always"/) }
+      it { should contain_exec('run sample with docker').with_command(/base command/) }
+      it { should contain_exec('run sample with docker').with_timeout(0) }
+    end
+
+    context 'with restart policy set to on-failure' do
+      let(:params) { {'restart' => 'on-failure', 'command' => 'command', 'image' => 'base', 'extra_parameters' => '-c 4'} }
+      it { should contain_exec('run sample with docker') }
+      it { should contain_exec('run sample with docker').with_unless(/\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_unless(/-a/) }
+      it { should contain_exec('run sample with docker').with_command(/--cidfile=\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_command(/-c 4/) }
+      it { should contain_exec('run sample with docker').with_command(/--restart="on-failure"/) }
+      it { should contain_exec('run sample with docker').with_command(/base command/) }
+      it { should contain_exec('run sample with docker').with_timeout(0) }
+    end
+
+    context 'with restart policy set to on-failure:3' do
+      let(:params) { {'restart' => 'on-failure:3', 'command' => 'command', 'image' => 'base', 'extra_parameters' => '-c 4'} }
+      it { should contain_exec('run sample with docker') }
+      it { should contain_exec('run sample with docker').with_unless(/\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_unless(/-a/) }
+      it { should contain_exec('run sample with docker').with_command(/--cidfile=\/var\/run\/docker-sample.cid/) }
+      it { should contain_exec('run sample with docker').with_command(/-c 4/) }
+      it { should contain_exec('run sample with docker').with_command(/--restart="on-failure:3"/) }
+      it { should contain_exec('run sample with docker').with_command(/base command/) }
+      it { should contain_exec('run sample with docker').with_timeout(0) }
+    end
+
+    context 'when `docker_service` is false' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'docker_service' => false} }
+      it { should compile.with_all_deps }
+			it { should contain_service('docker-sample') }
+    end
+
+    context 'when `docker_service` is true' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'docker_service' => true} }
+			let(:pre_condition) { "service { 'docker': }" }
+      it { should compile.with_all_deps }
+			it { should contain_service('docker').that_comes_before('Service[docker-sample]') }
+			it { should contain_service('docker').that_notifies('Service[docker-sample]') }
+    end
+
+    context 'when `docker_service` is true and `restart_service_on_docker_refresh` is false' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'docker_service' => true, 'restart_service_on_docker_refresh' => false} }
+			let(:pre_condition) { "service { 'docker': }" }
+      it { should compile.with_all_deps }
+			it { should contain_service('docker').that_comes_before('Service[docker-sample]') }
+    end
+
+    context 'when `docker_service` is `my-docker`' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'docker_service' => 'my-docker'} }
+			let(:pre_condition) { "service{ 'my-docker': }" }
+      it { should compile.with_all_deps }
+			it { should contain_service('my-docker').that_comes_before('Service[docker-sample]') }
+			it { should contain_service('my-docker').that_notifies('Service[docker-sample]') }
+    end
+
+    context 'when `docker_service` is `my-docker` and `restart_service_on_docker_refresh` is false' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'docker_service' => 'my-docker', 'restart_service_on_docker_refresh' => false} }
+			let(:pre_condition) { "service{ 'my-docker': }" }
+      it { should compile.with_all_deps }
+			it { should contain_service('my-docker').that_comes_before('Service[docker-sample]') }
+    end
+
+    context 'with extra_systemd_parameters' do
+      let(:params) { {'command' => 'command', 'image' => 'base', 'extra_systemd_parameters' => {'RestartSec' => 5}} }
+      if (systemd)
+        it { should contain_file(initscript).with_content(/^RestartSec=5$/) }
+      end
+    end
+
+    context 'with ensure absent' do
+      let(:params) { {'ensure' => 'absent', 'command' => 'command', 'image' => 'base'} }
+      it { should compile.with_all_deps }
+      it { should contain_service('docker-sample').with_ensure(false) }
+      it { should contain_exec("remove container docker-sample").with_command('docker rm -v sample') }
     end
 
   end

@@ -1,12 +1,16 @@
 {
   "name": "willdurand-nodejs",
-  "version": "1.8.5",
+  "version": "1.9.5",
   "author": "William Durand",
   "summary": "A module to install Node.js and NPM.",
   "license": "MIT",
   "source": "https://github.com/willdurand/puppet-nodejs",
   "project_page": "https://github.com/willdurand/puppet-nodejs",
   "issues_url": "https://github.com/willdurand/puppet-nodejs/issues",
+  "dependencies": [
+    {"name":"puppetlabs/stdlib","version_requirement":">=3.2.1"}
+  ],
+  "data_provider": null,
   "tags": [
     "node",
     "nodejs",
@@ -39,16 +43,6 @@
       "operatingsystemrelease": [
         "7"
       ]
-    }
-  ],
-  "dependencies": [
-    {
-      "name": "puppetlabs/stdlib",
-      "version_requirement": ">=3.2.1"
-    },
-    {
-      "name": "maestrodev/wget",
-      "version_requirement": ">=1.2.0"
     }
   ]
 }

@@ -1,45 +1,26 @@
 require 'spec_helper_acceptance'
 
 describe 'docker' do
-  case fact('osfamily')
-  when 'RedHat'
-    package_name = if fact('operatingsystemrelease').to_f >= 7
-      'docker'
-    else
-      'docker-io'
-    end
-  else
-    package_name = 'lxc-docker'
-  end
+  package_name = 'docker-engine'
   service_name = 'docker'
   command = 'docker'
 
-  before(:all) do
-    # This is a hack to work around a dependency issue
-    shell('sudo yum install -y device-mapper', :pty=>true) if fact('osfamily') == 'RedHat'
-  end
-
   context 'with default parameters' do
     let(:pp) {"
-        class { 'docker':
-          docker_users => [ 'testuser' ]
-        }
-        docker::image { 'nginx': }
-        docker::run { 'nginx':
-          image   => 'nginx',
-          net     => 'host',
-          require => Docker::Image['nginx'],
-        }
-        docker::run { 'nginx2':
-          image   => 'nginx',
-          restart => 'always',
-          require => Docker::Image['nginx'],
-        }
-        docker::run { 'nginx3':
-          image   => 'nginx',
-          use_name => true,
-          require => Docker::Image['nginx'],
-        }
+			class { 'docker':
+				docker_users => [ 'testuser' ],
+			}
+			docker::image { 'nginx': }
+			docker::run { 'nginx':
+				image   => 'nginx',
+				net     => 'host',
+				require => Docker::Image['nginx'],
+			}
+			docker::run { 'nginx2':
+				image   => 'nginx',
+				restart => 'always',
+				require => Docker::Image['nginx'],
+			}
     "}
 
     it 'should apply with no errors' do
@@ -61,7 +42,6 @@ describe 'docker' do
 
     describe command("#{command} version") do
       its(:exit_status) { should eq 0 }
-      its(:stdout) { should match /Client version:/ }
     end
 
     describe command("#{command} images"), :sudo => true do
@@ -69,17 +49,11 @@ describe 'docker' do
       its(:stdout) { should match /nginx/ }
     end
 
-    describe command("#{command} ps -l --no-trunc=true"), :sudo => true do
+    describe command("#{command} inspect nginx"), :sudo => true do
       its(:exit_status) { should eq 0 }
-      its(:stdout) { should match /nginx -g 'daemon off;'/ }
     end
 
-    describe command("#{command} ps"), :sudo => true do
-      its(:exit_status) { should eq 0 }
-      its(:stdout) { should match /nginx3/ }
-    end
-
-    describe command("#{command} inspect nginx3"), :sudo => true do
+    describe command("#{command} inspect nginx2"), :sudo => true do
       its(:exit_status) { should eq 0 }
     end
 
@@ -99,13 +73,28 @@ describe 'docker' do
     end
   end
 
+  context "When asked to have the latest image of something" do
+    let(:pp) {"
+        class { 'docker':
+          docker_users => [ 'testuser' ]
+        }
+	docker::image { 'busybox': ensure => latest }
+    "}
+    it 'should apply with no errors' do
+      apply_manifest(pp, :catch_failures=>true)
+    end
+    it 'should be idempotent' do
+      apply_manifest(pp, :catch_changes=>true)
+    end
+  end
+
   context 'registry' do
     before(:all) do
       registry_host = 'localhost'
       registry_port = 5000
       @registry_address = "#{registry_host}:#{registry_port}"
       @registry_email = 'user@example.com'
-      @config_file = fact('osfamily') == 'RedHat' ? '~/.dockercfg' : '~/.docker/config.json'
+      @config_file = '/root/.docker/config.json'
       @manifest = <<-EOS
         class { 'docker': }
         docker::run { 'registry':
@@ -119,10 +108,10 @@ describe 'docker' do
       apply_manifest(@manifest, :catch_failures=>true)
       # avoid a race condition with the registry taking time to start
       # on some operating systems
-      sleep 4
+      sleep 10
     end
 
-    it 'should be able to login to the registry' do
+    it 'should be able to login to the registry', :retry => 3, :retry_wait => 10 do
       manifest = <<-EOS
         docker::registry { '#{@registry_address}':
           username => 'username',
@@ -132,7 +121,6 @@ describe 'docker' do
       EOS
       apply_manifest(manifest, :catch_failures=>true)
       shell("grep #{@registry_address} #{@config_file}", :acceptable_exit_codes => [0])
-      shell("grep #{@registry_email} #{@config_file}", :acceptable_exit_codes => [0])
     end
 
     it 'should be able to logout from the registry' do
@@ -145,7 +133,6 @@ describe 'docker' do
       shell("grep #{@registry_address} #{@config_file}", :acceptable_exit_codes => [1,2])
       shell("grep #{@registry_email} #{@config_file}", :acceptable_exit_codes => [1,2])
     end
-
   end
 
 end

@@ -3,7 +3,10 @@ require 'spec_helper'
 describe 'nodejs::install', :type => :define do
   let(:title) { 'nodejs::install' }
   let(:facts) {{
-    :nodejs_stable_version => 'v0.10.20'
+    :nodejs_stable_version => 'v0.10.20',
+    :kernel                => 'linux',
+    :hardwaremodel         => 'x86',
+    :osfamily              => 'Ubuntu'
   }}
 
   describe 'with default parameters' do
@@ -14,7 +17,7 @@ describe 'nodejs::install', :type => :define do
       .with_ensure('directory')
     }
 
-    it { should contain_wget__fetch('nodejs-download-v0.10.20') \
+    it { should contain_nodejs__install__download('nodejs-download-v0.10.20') \
       .with_source('http://nodejs.org/dist/v0.10.20/node-v0.10.20.tar.gz') \
       .with_destination('/usr/local/node/node-v0.10.20.tar.gz')
     }
@@ -49,7 +52,7 @@ describe 'nodejs::install', :type => :define do
     it { should_not contain_file('/usr/local/bin/node') }
     it { should_not contain_file('/usr/local/bin/npm') }
 
-    it { should_not contain_wget__fetch('npm-download-v0.10.20') }
+    it { should_not contain_nodejs__install__download('npm-download-v0.10.20') }
     it { should_not contain_exec('npm-install-v0.10.20') }
   end
 
@@ -63,7 +66,7 @@ describe 'nodejs::install', :type => :define do
       .with_ensure('directory')
     }
 
-    it { should contain_wget__fetch('nodejs-download-v0.10.19') \
+    it { should contain_nodejs__install__download('nodejs-download-v0.10.19') \
       .with_source('http://nodejs.org/dist/v0.10.19/node-v0.10.19.tar.gz') \
       .with_destination('/usr/local/node/node-v0.10.19.tar.gz')
     }
@@ -98,7 +101,7 @@ describe 'nodejs::install', :type => :define do
     it { should_not contain_file('/usr/local/bin/node') }
     it { should_not contain_file('/usr/local/bin/npm') }
 
-    it { should_not contain_wget__fetch('npm-download-v0.10.19') }
+    it { should_not contain_nodejs__install__download('npm-download-v0.10.19') }
     it { should_not contain_exec('npm-install-v0.10.19') }
   end
 
@@ -113,7 +116,7 @@ describe 'nodejs::install', :type => :define do
       .with_ensure('directory')
     }
 
-    it { should contain_wget__fetch('npm-download-v0.6.2') \
+    it { should contain_nodejs__install__download('npm-download-v0.6.2') \
       .with_source('https://npmjs.org/install.sh') \
       .with_destination('/usr/local/node/node-v0.6.2/install-npm.sh')
     }
@@ -162,7 +165,10 @@ describe 'nodejs::install', :type => :define do
 
   describe 'on a RedHat based OS (osfamily = RedHat)' do
     let(:facts) {{
-      :osfamily => 'RedHat'
+      :osfamily              => 'RedHat',
+      :kernel                => 'linux',
+      :hardwaremodel         => 'x86',
+      :nodejs_stable_version => 'v0.10.20',
     }}
     let(:params) {{
       :version => '0.10.20'
@@ -175,7 +181,10 @@ describe 'nodejs::install', :type => :define do
 
   describe 'on a OpenSuse based OS (osfamily = Suse)' do
     let(:facts) {{
-      :osfamily => 'Suse'
+      :osfamily              => 'Suse',
+      :kernel                => 'linux',
+      :hardwaremodel         => 'x86',
+      :nodejs_stable_version => 'v0.10.20',
     }}
     let(:params) {{
       :version => '0.10.20'
@@ -188,7 +197,10 @@ describe 'nodejs::install', :type => :define do
 
   describe 'on a Non-RedHat based OS (osfamily != RedHat)' do
     let(:facts) {{
-        :osfamily => 'Debian'
+        :osfamily              => 'Debian',
+        :kernel                => 'linux',
+        :hardwaremodel         => 'x86',
+        :nodejs_stable_version => 'v0.10.20',
     }}
     let(:params) {{
       :version => '0.10.20'
@@ -197,5 +209,47 @@ describe 'nodejs::install', :type => :define do
     it { should contain_package('g++').with(
       :ensure => 'present'
     )}
+  end
+
+  describe 'uninstall' do
+    describe 'any instance' do
+      let(:params) {{
+        :version => 'v0.12',
+        :ensure  => 'absent',
+      }}
+      let(:facts) {{
+        :nodejs_installed_version => 'v0.12'
+      }}
+
+      it { should contain_file('/usr/local/node/node-v0.12') \
+        .with(:ensure => 'absent', :force => true, :recurse => true) \
+      }
+
+      it { should contain_file('/usr/local/bin/node-v0.12') \
+        .with_ensure('absent') \
+      }
+    end
+
+    describe 'default instance' do
+      let(:facts) {{
+        :nodejs_installed_version => 'v5.6.0'
+      }}
+      let(:params) {{
+        :version => 'v5.6.0',
+        :ensure  => 'absent',
+      }}
+
+      it { should contain_file('/usr/local/node/node-v5.6.0') \
+        .with_ensure('absent') \
+      }
+
+      it { should contain_file('/usr/local/node/node-default') \
+        .with_ensure('absent') \
+      }
+
+      it { should contain_file('/usr/local/bin/node-v5.6.0') \
+        .with_ensure('absent') \
+      }
+    end
   end
 end

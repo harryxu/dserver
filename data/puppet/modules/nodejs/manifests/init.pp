@@ -14,6 +14,12 @@
 # [*make_install*]
 #   If false, will install from nodejs.org binary distributions.
 #
+# [*node_path*]
+#   Value of the system environment variable (default: "/usr/local/node/node-default/lib/node_modules").
+#
+# [*python_package*]
+#   Python package name, defaults to python
+#
 # == Example:
 #
 #  include nodejs
@@ -23,17 +29,21 @@
 #  }
 #
 class nodejs (
-  $version      = 'stable',
-  $target_dir   = '/usr/local/bin',
-  $with_npm     = true,
-  $make_install = true,
+  $version        = 'stable',
+  $target_dir     = '/usr/local/bin',
+  $with_npm       = true,
+  $make_install   = true,
+  $node_path      = '/usr/local/node/node-default/lib/node_modules',
+  $python_package = 'python',
 ) {
+  validate_string($node_path)
 
   nodejs::install { "nodejs-${version}":
-    version      => $version,
-    target_dir   => $target_dir,
-    with_npm     => $with_npm,
-    make_install => $make_install,
+    version        => $version,
+    target_dir     => $target_dir,
+    with_npm       => $with_npm,
+    make_install   => $make_install,
+    python_package => $python_package,
   }
 
   $node_version = $version ? {
@@ -50,6 +60,23 @@ class nodejs (
     ensure  => link,
     target  => $nodejs_version_path,
     require => Nodejs::Install["nodejs-${version}"],
+  }
+
+  $node_default_symlink = "${target_dir}/node"
+  $node_default_symlink_target = "${nodejs_default_path}/bin/node"
+  $npm_default_symlink = "${target_dir}/npm"
+  $npm_default_symlink_target = "${nodejs_default_path}/bin/npm"
+  
+  file { $node_default_symlink:
+    ensure  => link,
+    target  => $node_default_symlink_target,
+    require => File[$nodejs_default_path]
+  }
+  
+  file { $npm_default_symlink:
+    ensure  => link,
+    target  => $npm_default_symlink_target,
+    require => File[$nodejs_default_path]
   }
 
   file { '/etc/profile.d/nodejs.sh':

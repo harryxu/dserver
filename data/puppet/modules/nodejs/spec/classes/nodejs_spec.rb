@@ -4,7 +4,10 @@ describe 'nodejs', :type => :class do
   let(:title) { 'nodejs' }
 
   let(:facts) {{
-    :nodejs_stable_version => 'v0.10.20'
+    :nodejs_stable_version => 'v0.10.20',
+    :kernel                => 'linux',
+    :hardwaremodel         => 'x86',
+    :osfamily              => 'Ubuntu',
   }}
 
   describe 'with default parameters' do
@@ -18,6 +21,16 @@ describe 'nodejs', :type => :class do
     it { should contain_file('/usr/local/node/node-default') \
       .with_ensure('link') \
       .with_target('/usr/local/node/node-v0.10.20')
+    }
+
+    it { should contain_file('/usr/local/bin/node') \
+      .with_ensure('link') \
+      .with_target('/usr/local/node/node-default/bin/node')
+    }
+
+    it { should contain_file('/usr/local/bin/npm') \
+      .with_ensure('link') \
+      .with_target('/usr/local/node/node-default/bin/npm')
     }
 
     it { should contain_file('/etc/profile.d/nodejs.sh') }
@@ -67,5 +80,14 @@ describe 'nodejs', :type => :class do
       .with_make_install('false')
     }
   end
-end
 
+  describe 'with node_path' do
+    let(:params) {{
+      :node_path => '/usr/local/node/node-v5.4.1/lib/node_modules'
+    }}
+
+    it { should contain_file('/etc/profile.d/nodejs.sh') \
+        .with_content(/(.*)NODE_PATH=\/usr\/local\/node\/node-v5.4.1\/lib\/node_modules/)
+    }
+  end
+end

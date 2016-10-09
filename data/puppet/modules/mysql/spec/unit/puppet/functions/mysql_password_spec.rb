@@ -23,5 +23,15 @@ describe 'the mysql_password function' do
     result = scope.function_mysql_password(%w(password))
     expect(result).to(eq('*2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19'))
   end
+  
+  it 'should convert an empty password into a empty string' do
+    result = scope.function_mysql_password([""])
+    expect(result).to(eq(''))
+  end
+
+  it 'should not convert a password that is already a hash' do
+    result = scope.function_mysql_password(['*2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19'])
+    expect(result).to(eq('*2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19'))
+  end
 
 end

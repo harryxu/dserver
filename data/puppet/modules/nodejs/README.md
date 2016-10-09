@@ -4,38 +4,49 @@ puppet-nodejs
 [![Build
 Status](https://travis-ci.org/willdurand/puppet-nodejs.png?branch=master)](https://travis-ci.org/willdurand/puppet-nodejs)
 
-This module allows to install [Node.js](http://nodejs.org/) and
+This module allows you to install [Node.js](http://nodejs.org/) and
 [NPM](https://npmjs.org/). This module is published on the Puppet Forge as
 [willdurand/nodejs](http://forge.puppetlabs.com/willdurand/nodejs).
 
+Important announcements
+-----------------------
+
+__NOTE:__ the master branch is used for puppet-nodejs 2.x which will be rewritten completly in the next time. When creating PRs then please open them for the ``1.9`` branch.
+
+__NOTE:__ the ``puppet-wget`` package is required until ``1.9.1``. In ``1.9.2`` the dependency has been removed in order to provide proper ``strict_vars`` support.
 
 Installation
 ------------
 
-### Manuall installation
+### Manual installation
 
 This modules depends on
-[puppetlabs/stdlib](https://github.com/puppetlabs/puppetlabs-stdlib) and [maestrodev/puppet-wget](https://github.com/maestrodev/puppet-wget).
-so all repositories have to be checked out:
+[puppetlabs/stdlib](https://github.com/puppetlabs/puppetlabs-stdlib).
+So all repositories have to be checked out:
 
 ```bash
 git clone git://github.com/willdurand/puppet-nodejs.git modules/nodejs
 git clone git://github.com/puppetlabs/puppetlabs-stdlib.git modules/stdlib
-git clone git://github.com/maestrodev/puppet-wget.git modules/wget
+```
+
+For Redhat based OS, the following are (typical) additional requirements:
+
+```bash
+git clone git://github.com/treydock/puppet-gpg_key.git modules/gpg_key
 ```
 
 ### Puppet Module Tool:
 
     puppet module install willdurand/nodejs
 
-### Librarian-puppet
+### Librarian-puppet:
 
     mod 'willdurand/nodejs', '1.x.x'
 
 Usage
 -----
 
-There are a few ways how to use this puppet module. The easiest one is just using the class definition
+There are a few ways to use this puppet module. The easiest one is just using the class definition:
 
 ```puppet
 class { 'nodejs':
@@ -52,7 +63,7 @@ class { 'nodejs':
 }
 ```
 
-### Setup using pre-built installer
+### Setup using the pre-built installer
 
 To use the pre-built installer version provided via http://nodejs.org/download you have to set `make_install` to `false`
 
@@ -63,9 +74,24 @@ class { 'nodejs':
 }
 ```
 
+### Setup with a given download timeout
+
+Due to infrastructures with slower connections the download of the nodejs binaries should be
+configurable:
+
+``` puppet
+::Nodejs::Install::Download {
+  timeout => 300
+}
+
+class { '::nodejs':
+  make_install => false,
+}
+```
+
 ### Setup multiple versions of Node.js
 
-If you need mode than one installed version of Node.js on your machine, you can just do it using the `nodejs::install` puppet define.
+If you need more than one installed version of Node.js on your machine, you can just do it using the `nodejs::install` puppet define.
 
 ```puppet
 nodejs::install { 'v0.10.17':
@@ -80,14 +106,50 @@ This snippet will install version `v0.10.17` and `v0.10.25` on your machine. Kee
 
 ```
 /usr/local/bin/node-v0.10.17
-/usr/local/bin/npm-v0.10.17
-
 /usr/local/bin/node-v0.10.25
-/usr/local/bin/npm-v0.10.25
 ```
 
 By default, this module creates a symlink for the node binary (and npm) with Node.js version appended into `/usr/local/bin` e.g. `/usr/local/bin/node-v0.10.17`.
 All parameters available in the `class` definition are also available for `nodejs::install`.
+
+NPM symlinks cannot be created since every npm instance would use the default node interpreter which may cause errors.
+If you'd like to use another npm interpreter, please do something like this:
+
+```
+/usr/local/node/node-vx.x/bin/node /usr/local/node/node-vx.x/bin/npm run your_command
+```
+
+For 2.x it is planned to use NVM and refactor the whole nodejs installer (See [#119](https://github.com/willdurand/puppet-nodejs/issues/119)
+
+It is also possible to remove those versions again:
+
+```puppet
+::nodejs::install { 'node-v5.4':
+  ensure  => absent,
+  version => 'v5.4.1',
+}
+```
+
+After the run the directory __/usr/local/node/node-v5.4.1__ has been purged.
+The link __/usr/local/bin/node-v5.4.1__ is also purged.
+
+__Note:__ It is not possible to install and uninstall an instance in the same run.
+
+When attempting to remove the default instance this can be only done when having the ``::nodejs`` class __NOT__ defined as otherwise ``duplicate resource`` errors would occur. 
+After that no new default instance will be configured.
+
+### Configuring $NODE_PATH
+
+The environment variable $NODE_PATH can be configured using the `init` manifest:
+
+```puppet
+class { '::nodejs':
+  version   => 'latest',
+  node_path => '/your/custom/node/path',
+}
+```
+
+It is not possible to adjust a $NODE_PATH through ``::nodejs::install``.
 
 ### Binary path
 
@@ -125,6 +187,39 @@ class { 'nodejs':
 package { 'express':
   provider => 'npm',
   require  => Class['nodejs']
+}
+```
+
+### NPM installer
+
+The nodejs installer can be used if a npm package should not be installed globally, but in a certain directory.
+
+There are two approaches how to use this feature:
+
+#### Installing a single package into a directory
+
+```puppet
+::nodejs::npm { 'npm-webpack':
+  ensure       => present, # absent would uninstall this package
+  pkg_name     => 'webpack',
+  version      => 'x.x', # optional
+  install_opt  => '-x -y -z', # options passed to the "npm install" cmd, optional
+  remove_opt   => '-x -y -z', # options passed to the "npm remove" cmd (in case of ensure => absent), optional
+  exec_as_user => 'vagrant',  # exec user, optional
+  directory    => '/target/directory', # target directory
+}
+```
+
+This would install the package ``webpack`` into ``/target/directory`` with version ``x.x``.
+
+#### Executing a ``package.json`` file
+
+```puppet
+::nodejs::npm { 'npm-install-dir':
+  list         => true, # flag to tell puppet to execute the package.json file
+  directory    => '/target',
+  exec_as_user => 'vagrant',
+  install_opt  => '-x -y -z',
 }
 ```
 
