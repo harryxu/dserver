@@ -3,7 +3,7 @@ define autojump::install ($user = $title) {
   $cwd = "/tmp"
   $path = ['/usr/bin', '/bin']
 
-  exec { 'autojump::git clone':
+  exec { "autojump::git clone ${user}":
     command => "git clone git://github.com/joelthelion/autojump.git",
     cwd     => $cwd,
     creates => $shfile,
@@ -12,23 +12,24 @@ define autojump::install ($user = $title) {
     require => [Package['git']],
   }
 
-  exec { 'autojump::install':
+  exec { "autojump::install ${user}":
     command => "python install.py",
     cwd     => "${cwd}/autojump",
     creates => $shfile,
     user    => $user,
     path    => $path,
-    require => Exec['autojump::git clone'],
+    require => Exec["autojump::git clone ${user}"],
   }
 
-  file_line { 'zshrc::autojump':
+  file_line { "zshrc::autojump ${user}":
     path => "/home/${user}/.zshrc",
-    line => '[[ -s /home/vagrant/.autojump/etc/profile.d/autojump.sh ]] && source /home/vagrant/.autojump/etc/profile.d/autojump.sh',
-    require => Exec['autojump::install'],
+    line => "[[ -s /home/${user}/.autojump/etc/profile.d/autojump.sh ]] && source /home/${user}/.autojump/etc/profile.d/autojump.sh",
+    require => Exec["autojump::install ${user}"],
   }
-  file_line { 'zshrc::compinit':
+
+  file_line { "zshrc::compinit ${user}":
     path => "/home/${user}/.zshrc",
     line => 'autoload -U compinit && compinit -u',
-    require => File_line['zshrc::autojump'],
+    require => File_line["zshrc::autojump ${user}"],
   }
 }
