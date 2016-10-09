@@ -27,6 +27,17 @@ include 'docker'
 include pip
 
 # apache, php, mysql
+class { '::php::globals':
+  php_version => '5.6',
+}->
+class { '::php':
+  manage_repos => true,
+  fpm          => true,
+  dev          => true,
+  composer     => true,
+  phpunit      => true,
+}
+
 class { apache:
   default_vhost => false,
   default_mods => true,
@@ -36,13 +47,16 @@ class { apache:
 
 apache::mod { 'rewrite': }
 apache::mod { 'headers': }
+apache::mod { 'proxy': }
 
 apache::vhost { 'default_vhost':
+  default_vhost => true,
   vhost_name    => '*',
   port          => '80',
   docroot       => '/data/www',
   override      => ['All'],
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
+  custom_fragment   => 'ProxyPassMatch ^/(.*\\.php(/.*)?)$ fcgi://127.0.0.1:9000/$1',
 }
 
 class { '::mysql::server':
