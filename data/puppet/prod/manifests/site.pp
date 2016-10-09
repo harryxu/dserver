@@ -73,11 +73,11 @@ mysql_grant { 'root@%/*.*':
   require => Class['::mysql::server'],
 }
 
-# Add www-data to vagrant group.
+# Add www-data to ubuntu group.
 # http://serverfault.com/a/469973/95103
-exec {"www-data vagrant group":
-  unless => "grep -q 'vagrant\\S*www-data' /etc/group",
-  command => "usermod -aG vagrant www-data",
+exec {"www-data ubuntu group":
+  unless => "grep -q 'ubuntu\\S*www-data' /etc/group",
+  command => "usermod -aG ubuntu www-data",
   path => ['/bin', '/usr/sbin'],
   notify  => Class['Apache::Service'],
   require => Package['httpd'],
