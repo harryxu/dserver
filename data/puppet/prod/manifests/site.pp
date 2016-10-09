@@ -45,11 +45,6 @@ apache::vhost { 'default_vhost':
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
 }
 
-package { libapache2-mod-php5:
-  ensure => installed
-}
-include apache::mod::php
-
 class { '::mysql::server':
   override_options => {
     'mysqld' => {
@@ -132,18 +127,18 @@ autojump::install { 'vagrant':
 }
 
 # nodejs
-class { 'nodejs':
-  version => 'stable',
-}
-
-file_line { 'nodejs_btn_path':
-  path => '/home/vagrant/.zshrc',
-  line => 'export PATH=/usr/local/node/node-default/bin:$PATH',
-  require => Class['ohmyzsh', 'nodejs']
-}
-
-# npm global packages
-package { 'gulp':
-  provider => 'npm',
-  require  => Class['nodejs']
-}
+#class { 'nodejs':
+#  version => 'stable',
+#}
+#
+#file_line { 'nodejs_btn_path':
+#  path => '/home/vagrant/.zshrc',
+#  line => 'export PATH=/usr/local/node/node-default/bin:$PATH',
+#  require => Class['ohmyzsh', 'nodejs']
+#}
+#
+## npm global packages
+#package { 'gulp':
+#  provider => 'npm',
+#  require  => Class['nodejs']
+#}
