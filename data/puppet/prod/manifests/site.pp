@@ -61,13 +61,16 @@ apache::vhost { 'default_vhost':
   vhost_name    => '*',
   port          => '80',
   docroot       => '/data/www',
-  override      => ['All'],
-  options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
   directories => [
     {
-      'path'        => '\.php$',
-      'provider'    => 'filesmatch',
-      'sethandler'  => 'proxy:fcgi://127.0.0.1:9000'
+      path            => '/data/www',
+      allow_override  => ['All'],
+      options         => ['Indexes', 'FollowSymLinks', 'MultiViews'],
+    },
+    {
+      path        => '\.php$',
+      provider    => 'filesmatch',
+      sethandler  => 'proxy:fcgi://127.0.0.1:9000'
     },
   ],
 }
