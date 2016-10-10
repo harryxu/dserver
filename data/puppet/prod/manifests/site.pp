@@ -36,6 +36,12 @@ class { '::php':
   dev          => true,
   composer     => true,
   phpunit      => true,
+  extensions   => {
+    mcrypt    => {  },
+    mysql     => {  },
+    fileinfo  => {  },
+    sqlite3   => {  },
+  }
 }
 
 class { apache:
@@ -48,6 +54,7 @@ class { apache:
 apache::mod { 'rewrite': }
 apache::mod { 'headers': }
 apache::mod { 'proxy': }
+apache::mod { 'proxy_fcgi': }
 
 apache::vhost { 'default_vhost':
   default_vhost => true,
@@ -56,7 +63,13 @@ apache::vhost { 'default_vhost':
   docroot       => '/data/www',
   override      => ['All'],
   options       => ['Indexes', 'FollowSymLinks', 'MultiViews'],
-  custom_fragment   => 'ProxyPassMatch ^/(.*\\.php(/.*)?)$ fcgi://127.0.0.1:9000/$1',
+  directories => [
+    {
+      'path'        => '\.php$',
+      'provider'    => 'filesmatch',
+      'sethandler'  => 'proxy:fcgi://127.0.0.1:9000'
+    },
+  ],
 }
 
 class { '::mysql::server':
