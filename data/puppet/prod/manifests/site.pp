@@ -162,6 +162,20 @@ autojump::install {
 }
 
 # nodejs
+class { '::nodejs':
+  manage_package_repo       => true,
+  repo_url_suffix           => '6.x',
+  npm_package_ensure        => 'absent',
+  nodejs_dev_package_ensure => 'absent',
+}
+
+package { 'gulp':
+  ensure   => 'present',
+  provider => 'npm',
+}
+
+
+# nodejs
 #class { 'nodejs':
 #  version => 'stable',
 #}
