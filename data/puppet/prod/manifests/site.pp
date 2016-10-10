@@ -76,32 +76,37 @@ apache::vhost { 'default_vhost':
 }
 
 class { '::mysql::server':
+  root_password => '1',
   override_options => {
     'mysqld' => {
       bind_address => '0.0.0.0',
       character_set_server => 'utf8',
       collation_server => 'utf8_general_ci',
     }
+  },
+
+  users => {
+    'root@%' => {
+      ensure                   => 'present',
+      max_connections_per_hour => '0',
+      max_queries_per_hour     => '0',
+      max_updates_per_hour     => '0',
+      max_user_connections     => '0',
+      password_hash            => mysql_password('1'),
+    },
+  },
+
+  grants => {
+    'root@%/*.*' => {
+      ensure     => 'present',
+      options    => ['GRANT'],
+      privileges => ['ALL'],
+      table      => '*.*',
+      user       => 'root@%',
+    }
   }
 }
 
-mysql_user { 'root@%':
-  ensure                   => 'present',
-  max_connections_per_hour => '0',
-  max_queries_per_hour     => '0',
-  max_updates_per_hour     => '0',
-  max_user_connections     => '0',
-  require => Class['::mysql::server'],
-}
-
-mysql_grant { 'root@%/*.*':
-  ensure     => 'present',
-  options    => ['GRANT'],
-  privileges => ['ALL'],
-  table      => '*.*',
-  user       => 'root@%',
-  require => Class['::mysql::server'],
-}
 
 # Add www-data to vagrant group.
 # http://serverfault.com/a/469973/95103
