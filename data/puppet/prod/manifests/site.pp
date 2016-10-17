@@ -41,6 +41,9 @@ class { '::php':
     mysql     => {  },
     fileinfo  => {  },
     sqlite3   => {  },
+    gd        => {  },
+    imagick   => {  },
+    mbstring  => {  },
   }
 }
 
