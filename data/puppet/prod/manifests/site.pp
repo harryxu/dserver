@@ -17,6 +17,14 @@ package { 'python-software-properties':
   ensure => 'present',
 }
 
+package { 'zip':
+  ensure => 'present',
+}
+
+package { 'unzip':
+  ensure => 'present',
+}
+
 # Git
 include git
 
@@ -44,6 +52,7 @@ class { '::php':
     gd        => {  },
     imagick   => {  },
     mbstring  => {  },
+    zip       => {  },
   }
 }
 
