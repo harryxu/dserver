@@ -9,6 +9,7 @@ define autojump::install ($user = $title) {
     creates => $shfile,
     user    => $user,
     path    => $path,
+    unless  => '/usr/bin/test -d /tmp/autojump',
     require => [Package['git']],
   }
 

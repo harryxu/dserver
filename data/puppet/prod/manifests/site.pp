@@ -160,18 +160,18 @@ file { '/home/vagrant/.vimrc':
 
 # ohmyzsh https://forge.puppetlabs.com/acme/ohmyzsh
 class { 'ohmyzsh': }
-ohmyzsh::install { ['root', 'ubuntu', 'vagrant']: }
+ohmyzsh::install { ['root', 'vagrant']: }
 ohmyzsh::plugins {
-  ['ubuntu', 'vagrant']: plugins => 'git github composer larave5',
+  ['vagrant']: plugins => 'git github composer larave5',
 }
 ohmyzsh::theme {
-  ['ubuntu', 'vagrant']: theme => 'blinks',
+  ['vagrant']: theme => 'blinks',
 }
 
 
 # autojump
 autojump::install { 
-  ['ubuntu', 'vagrant']: require => Class['ohmyzsh'],
+  ['vagrant']: require => Class['ohmyzsh'],
 }
 
 # nodejs
