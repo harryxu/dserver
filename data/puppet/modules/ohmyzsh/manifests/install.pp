@@ -29,7 +29,7 @@ define ohmyzsh::install() {
   if $name == 'root' { $home = '/root' } else { $home = "${ohmyzsh::params::home}/${name}" }
   exec { "ohmyzsh::git clone ${name}":
     creates => "${home}/.oh-my-zsh",
-    command => "/usr/bin/git clone https://git.oschina.net/harryzhxu/oh-my-zsh.git ${home}/.oh-my-zsh",
+    command => "/usr/bin/git clone git@github.com:robbyrussell/oh-my-zsh.git ${home}/.oh-my-zsh",
     user    => $name,
     require => [Package['git'], Package['zsh']]
   }

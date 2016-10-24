@@ -4,7 +4,7 @@ define autojump::install ($user = $title) {
   $path = ['/usr/bin', '/bin']
 
   exec { "autojump::git clone ${user}":
-    command => "git clone https://git.oschina.net/harryzhxu/autojump.git",
+    command => "git@github.com:wting/autojump.git",
     cwd     => $cwd,
     creates => $shfile,
     user    => $user,
