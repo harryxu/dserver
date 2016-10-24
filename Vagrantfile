@@ -2,6 +2,9 @@
 # vi: set ft=ruby :
 # vim: set ft=ruby :
 
+# Before you first run vagrant up, please install vagrant-vbguest plugin:
+# vagrant plugin install vagrant-vbguest
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -34,6 +37,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # If true, then any SSH connections made will enable agent forwarding.
   # Default value: false
   # config.ssh.forward_agent = true
+
+  # Disable default /vagrant synced folder.
+  # http://superuser.com/a/757031
+  config.vm.synced_folder '.', '/vagrant', disabled: true
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
