@@ -28,8 +28,8 @@ package { 'unzip':
 # Git
 include git
 
-# docker, fig
-include 'docker'
+# docker
+#include 'docker'
 
 # pip
 include pip
