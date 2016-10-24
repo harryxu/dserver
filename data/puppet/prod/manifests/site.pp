@@ -36,7 +36,7 @@ include pip
 
 # apache, php, mysql
 class { '::php::globals':
-  php_version => '5.6',
+  php_version => '7.0',
 }->
 class { '::php':
   manage_repos => true,
@@ -47,12 +47,13 @@ class { '::php':
   extensions   => {
     mcrypt    => {  },
     mysql     => {  },
-    fileinfo  => {  },
     sqlite3   => {  },
     gd        => {  },
     imagick   => {  },
     mbstring  => {  },
     zip       => {  },
+    curl      => {  },
+    readline  => {  },
   }
 }
 

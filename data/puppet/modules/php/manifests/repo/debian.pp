@@ -22,7 +22,7 @@
 #
 class php::repo::debian(
   $location     = 'http://packages.dotdeb.org',
-  $release      = 'wheezy-php56',
+  #$release      = 'wheezy-php56',
   $repos        = 'all',
   $include_src  = false,
   $key          = {
@@ -42,24 +42,13 @@ class php::repo::debian(
     key => $key['id'], key_source => $key['source'],
   }})
 
-  ::apt::source { "source_php_${release}":
-    location    => $location,
-    release     => $release,
-    repos       => $repos,
-    include_src => $include_src,
-    require     => Apt::Key['php::repo::debian'],
-  }
-
   if ($dotdeb) {
-    # both repositories are required to work correctly
-    # See: http://www.dotdeb.org/instructions/
-    if $release == 'wheezy-php56' {
-      ::apt::source { 'dotdeb-wheezy':
-        location    => $location,
-        release     => 'wheezy',
-        repos       => $repos,
-        include_src => $include_src,
-      }
+    ::apt::source { 'dotdeb-jessie':
+      location    => $location,
+      release     => 'jessie',
+      repos       => $repos,
+      include_src => $include_src,
+      require     => Apt::Key['php::repo::debian'],
     }
   }
 }
