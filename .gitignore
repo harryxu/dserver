@@ -1,6 +1,8 @@
 data/*
 !data/puppet/
 !data/www/
+!data/files/
+!data/ansible/
 
 # Created by http://www.gitignore.io
 

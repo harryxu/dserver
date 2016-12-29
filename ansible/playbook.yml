@@ -1,0 +1,9 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install required softwares
+    apt: name={{ item }} state=present
+    sudo: yes
+    with_items:
+      - apache2

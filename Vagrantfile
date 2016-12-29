@@ -23,11 +23,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network "forwarded_port", guest: 80, host: 8088
+  config.vm.network "forwarded_port", guest: 80, host: 8089
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.16.10"
+  config.vm.network "private_network", ip: "192.168.16.12"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -40,7 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Disable default /vagrant synced folder.
   # http://superuser.com/a/757031
-  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.synced_folder '.', '/vagrant', :nfs => true
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -69,11 +69,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    sudo cp /data/files/apt/sources.list /etc/apt/sources.list
+    sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
     sudo apt-get update
   SHELL
 
   config.vm.provision "ansible_local" do |ansible|
+    ansible.provisioning_path = "/vagrant/ansible"
     ansible.playbook    = "playbook.yml"
     ansible.verbose     = true
     ansible.install     = true

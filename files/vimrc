@@ -1,0 +1,224 @@
+set nocompatible
+"filetype off
+filetype plugin indent on
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+
+set modelines=1
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"Set to auto read when a file is changed from the outside
+set autoread
+
+"Have the mouse enabled all the time:
+set mouse=a
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" VIM userinterface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 显示行号
+set nu
+
+set cursorline
+set shiftround
+set linebreak
+let &showbreak='↪ '
+
+
+
+" 横向滚动条
+"set go+=b
+
+set showcmd "show incomplete cmds down the bottom
+set showmode "show current mode down the bottom
+
+set ignorecase
+set incsearch "find the next match as we type the search
+set hlsearch "hilight searches by default
+set smartcase
+
+set wildmenu
+set completeopt=longest,menuone
+set splitbelow
+
+set sessionoptions-=options
+
+"set nowrap
+" wrapping text
+set wrap linebreak
+
+set laststatus=2
+
+" 默认禁用代码折叠
+set nofoldenable
+"选择代码折叠类型
+"set foldmethod=syntax
+"启动vim时不要自动折叠代码
+set foldlevel=100
+
+"hide menubar and toolbar
+set go-=m
+set go-=T
+
+set wildignore+=*.o,.git,.svn,*.jpg,*.gif,*.png,*.swf,*.psd,*.rar,*.zip,*.doc
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Fileformats
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" 编码设定
+set encoding=utf-8
+set fileencodings=utf-8,ucs-bom,gbk,gb2312,gb18030,cp936,default,latin1
+if has('Win32')
+    source $VIMRUNTIME/delmenu.vim
+    source $VIMRUNTIME/menu.vim
+    language messages zh_CN.UTF-8
+endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Colors and Fonts
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" 打开代码高亮
+syntax enable
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Editing mappings etc.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" 将F2键映射为取消字符串搜索后的高亮
+map <F2> :nohlsearch<CR>
+
+imap <F1> <ESC>
+map <F1> <ESC>
+
+" omni
+" Add a C-p is for cancel select first item, this issue is cased by NeoComplCache.
+imap <C-L> <C-x><C-o><C-p>
+
+
+" 打开文件即切换到文件所在目录
+set autochdir
+
+" ctrl s 保存
+noremap <C-S>           :update<CR>
+vnoremap <C-S>          <C-C>:update<CR>
+inoremap <C-S>          <C-O>:update<CR>
+
+" ctrl v 从剪切板中粘贴
+cmap <C-V>              <C-R>+
+exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
+exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
+imap <S-Insert>         <C-V>
+vmap <S-Insert>         <C-V>
+
+" Ctrl c 复制到剪切板
+vnoremap <C-C> "+y
+
+nmap j gj
+nmap k gk
+
+" move on windows
+map <C-I> <C-W>k
+map <C-J> <C-W>j
+map <C-H> <C-W>h
+map <C-L> <C-W>l
+
+" windows move
+set winaltkeys=no
+map <A-k> <C-W>K
+map <A-j> <C-W>J
+map <A-h> <C-W>H
+map <A-l> <C-W>L
+
+if has('mac')
+    "map <C-W> <C-^>
+else
+    map <A-1> <C-^>
+endif
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Files and backups
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Turn backup off
+set nobackup
+set nowb
+set noswapfile
+
+" Automatically removing all trailing whitespace
+" http://vim.wikia.com/wiki/Remove_unwanted_spaces#Automatically_removing_all_trailing_whitespace
+nmap ,cw :%s/\s\+$//e<CR><C-O>
+autocmd FileType c,cpp,java,php,css,javascript,python autocmd BufWritePre <buffer> :%s/\s\+$//e
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Text options
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    """"""""""""""""""""""""""""""
+    " tab
+    """"""""""""""""""""""""""""""
+    set expandtab
+    set tabstop=4
+    set shiftwidth=4
+    set softtabstop=4
+
+    """"""""""""""""""""""""""""""
+    " indent
+    """"""""""""""""""""""""""""""
+    "Auto indent
+    set ai
+
+    "Smart indet
+    set si
+
+    "C-style indeting
+    "set cindent
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Filetype generic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """"""""""""""""""""""""""""""
+    " HTML related
+    """"""""""""""""""""""""""""""
+
+    """"""""""""""""""""""""""""""
+    " Python
+    """"""""""""""""""""""""""""""
+    "autocmd FileType python set omnifunc=pythoncomplete#Complete
+
+    """"""""""""""""""""""""""""""
+    " PHP
+    """"""""""""""""""""""""""""""
+    "let php_sql_query = 1
+    let php_alt_blocks = 0
+    au FileType php imap ,, ->
+
+    au BufRead *.blade.php setlocal ts=2 sts=2 sw=2
+
+    " phpDocumentor
+    "au FileType php nmap <C-S-P> :call PhpDocSingle()<CR>
+    "let php_strict_blocks = 0
+
+    """"""""""""""""""""""""""""""
+    " XML
+    """"""""""""""""""""""""""""""
+
+    """"""""""""""""""""""""""""""
+    " diff
+    """"""""""""""""""""""""""""""
+    au FileType diff colorscheme railscasts
+
+    """"""""""""""""""""""""""""""
+    " yaml,xml,html 使用2个空格作为缩进
+    """"""""""""""""""""""""""""""
+    autocmd FileType html,xhtml,htmldjango,css,scss,less,xml,jsp setlocal ts=2 sts=2 sw=2 expandtab
