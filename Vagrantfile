@@ -69,24 +69,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    sudo cp /data/puppet/files/apt/sources.list /etc/apt/sources.list
+    sudo cp /data/files/apt/sources.list /etc/apt/sources.list
     sudo apt-get update
-    if which puppet > /dev/null 2>&1 && apt-cache policy | grep --quiet apt.puppetlabs.com; then
-        echo "Puppet is already installed."
-    else
-        wget -O - https://raw.githubusercontent.com/petems/puppet-install-shell/master/install_puppet_agent.sh | sudo sh
-    fi
   SHELL
 
-  # Enable provisioning with Puppet stand alone.  Puppet manifests
-  # are contained in a directory path relative to this Vagrantfile.
-  # You will need to create the manifests directory and a manifest in
-  # the file base.pp in the manifests_path directory.
-  config.vm.provision "puppet" do |puppet|
-    puppet.environment_path = "data/puppet"
-    puppet.environment = "prod"
-    puppet.module_path = "data/puppet/modules"
-    puppet.options = "--fileserverconfig=/data/puppet/fileserver.conf"
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook    = "playbook.yml"
+    ansible.verbose     = true
+    ansible.install     = true
   end
+
+  
 
 end
