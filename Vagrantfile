@@ -70,14 +70,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
-    sudo apt-get update
   SHELL
 
   config.vm.provision "ansible_local" do |ansible|
-    ansible.provisioning_path = "/vagrant/ansible"
-    ansible.playbook    = "playbook.yml"
-    ansible.verbose     = true
-    ansible.install     = true
+    ansible.provisioning_path   = "/vagrant/ansible"
+    ansible.playbook            = "playbook.yml"
+    ansible.galaxy_roles_path   = "ansible/roles"
+    ansible.verbose             = true
+    ansible.install             = true
+    ansible.sudo                = true
   end
 
   

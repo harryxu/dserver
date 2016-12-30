@@ -1,15 +1,24 @@
 ---
 - hosts: all
 
+  vars:
+    # Apache vars
+    apache_remove_default_vhost: true
+    apache_create_vhosts: true
+    apache_vhosts:
+    - servername: "default_vhost"
+      documentroot: "/data/www"
+      extra_parameters: |
+        <Directory "/data/www">
+          Options Indexes FollowSymLinks MultiViews
+          AllowOverride All
+          Require all granted
+        </Directory>
+ 
+
   tasks:
   - apt_repository:
-    repo: 'ppa:ondrej/php'
+      repo: 'ppa:ondrej/php'
 
-  - name: Install required softwares
-    apt: name={{ item }} state=present
-    sudo: yes
-    with_items:
-      - apache2
-      - php7.0
-      - php7.0-mysql
-      - php7.0-gd
+  roles:
+  - geerlingguy.apache
