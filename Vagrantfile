@@ -14,11 +14,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "boxcutter/ubuntu1604"
+  config.vm.box = "geerlingguy/ubuntu1604"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://gr:gros@case.bigecko.com/os/boxcutter-ubuntu1604.box"
+  # config.vm.box_url = "http://gr:gros@case.bigecko.com/os/boxcutter-ubuntu1604.box"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -79,7 +79,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible.verbose     = true
     ansible.install     = true
   end
-
-  
 
 end
