@@ -2,6 +2,8 @@
 - hosts: all
 
   vars:
+    timezone: Asia/Shanghai
+
     # Apache vars
     apache_remove_default_vhost: true
     apache_create_vhosts: true
@@ -35,6 +37,20 @@
       - php7.0-mysql 
       - php7.0-pdo 
 
+    # MySQL vars
+    mysql_root_username: root
+    mysql_root_password: '1'
+    mysql_root_password_update: yes
+    mysql_bind_address: '0.0.0.0'
+    mysql_config_include_files:
+      - src: /vagrant/files/mysql.cnf
+        force: true
+    mysql_users:
+      - name: root
+        host: '%'
+        password: '1'
+        priv: "*.*:ALL"
+
   tasks:
   - apt_repository:
       repo: 'ppa:ondrej/php'
@@ -43,8 +59,11 @@
     apt: name={{ item }} state=present
     with_items:
       - git
+      - vim
 
   roles:
     - geerlingguy.apache
     - geerlingguy.php
     - geerlingguy.composer
+    - geerlingguy.mysql
+    - yatesr.timezone
