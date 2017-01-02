@@ -3,4 +3,5 @@
 - src: geerlingguy.php
 - src: geerlingguy.composer
 - src: geerlingguy.mysql
+- src: geerlingguy.nodejs
 - src: yatesr.timezone
