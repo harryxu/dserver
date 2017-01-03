@@ -2,7 +2,7 @@ data/*
 !data/puppet/
 !data/www/
 !data/files/
-!data/ansible/
+!data/mysql
 
 # Created by http://www.gitignore.io
 

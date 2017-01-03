@@ -1,15 +1,89 @@
 ---
 - hosts: all
 
-  tasks:
-  - apt_repository:
-    repo: 'ppa:ondrej/php'
+  vars:
+    timezone: Asia/Shanghai
 
-  - name: Install required softwares
-    apt: name={{ item }} state=present
-    sudo: yes
-    with_items:
-      - apache2
-      - php7.0
-      - php7.0-mysql
+    # Apache vars
+    apache_remove_default_vhost: true
+    apache_create_vhosts: true
+    apache_vhosts:
+    - servername: "default_vhost"
+      documentroot: "/data/www"
+      extra_parameters: |
+        <Directory "/data/www">
+          Options Indexes FollowSymLinks MultiViews
+          AllowOverride All
+          Require all granted
+        </Directory>
+ 
+    # PHP vars
+    php_enable_webserver: true
+    php_webserver_daemon: "apache2"
+    php_packages:
+      - libapache2-mod-php7.0
+      - php7.0-common
+      - php7.0-cli
+      - php7.0-dev
       - php7.0-gd
+      - php7.0-curl
+      - php7.0-imap
+      - php7.0-json
+      - php7.0-xml
+      - php7.0-mbstring
+      - php-sqlite3
+      - php7.0-mcrypt 
+      - php7.0-fileinfo 
+      - php7.0-mysql 
+      - php7.0-pdo 
+
+    # MySQL vars
+    mysql_root_username: root
+    mysql_root_password: '1'
+    mysql_root_password_update: yes
+    mysql_bind_address: '0.0.0.0'
+    mysql_config_include_files:
+      - src: /vagrant/files/mysql.cnf
+        force: true
+    mysql_users:
+      - name: root
+        host: '%'
+        password: '1'
+        priv: "*.*:ALL"
+
+  tasks:
+    - apt_repository:
+        repo: 'ppa:ondrej/php'
+
+    - name: Install required softwares
+      apt: name={{ item }} state=present
+      with_items:
+        - git
+        - vim
+
+  roles:
+    - geerlingguy.apache
+    - geerlingguy.php
+    - geerlingguy.composer
+    - geerlingguy.mysql
+    - yatesr.timezone
+    - role: geerlingguy.nodejs
+      nodejs_version: '6.x'
+      nodejs_install_npm_user: vagrant
+      nodejs_npm_global_packages: 
+        - name: gulp
+
+  post_tasks:
+    - apt_key:
+        url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+        state: present
+
+    - apt_repository:
+        repo: deb https://dl.yarnpkg.com/debian/ stable main
+        state: present
+        filename: 'yarn.list'
+
+    - name: Install required softwares in post tasks
+      apt: name={{ item }} state=present
+      with_items:
+        - yarn
