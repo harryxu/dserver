@@ -16,12 +16,16 @@
           AllowOverride All
           Require all granted
         </Directory>
- 
+        ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/data/www"
+
     # PHP vars
     php_enable_webserver: true
     php_webserver_daemon: "apache2"
+    php_enable_php_fpm: true
+    php_fpm_listen: "127.0.0.1:9000"
+    php_fpm_listen_allowed_clients: "127.0.0.1"
     php_packages:
-      - libapache2-mod-php7.0
+      - php7.0-fpm
       - php7.0-common
       - php7.0-cli
       - php7.0-dev
@@ -32,10 +36,12 @@
       - php7.0-xml
       - php7.0-mbstring
       - php-sqlite3
-      - php7.0-mcrypt 
-      - php7.0-fileinfo 
-      - php7.0-mysql 
-      - php7.0-pdo 
+      - php7.0-mcrypt
+      - php7.0-fileinfo
+      - php7.0-mysql
+      - php7.0-pdo
+      - php7.0-opcache
+      - php-apcu
 
     # MySQL vars
     mysql_root_username: root
@@ -46,15 +52,16 @@
       - src: /vagrant/files/mysql.cnf
         force: true
     mysql_users:
-      - name: root
+      - name: sa
         host: '%'
         password: '1'
         priv: "*.*:ALL"
 
-  tasks:
+  pre_tasks:
     - apt_repository:
         repo: 'ppa:ondrej/php'
 
+  tasks:
     - name: Install required softwares
       apt: name={{ item }} state=present
       with_items:
@@ -64,13 +71,14 @@
   roles:
     - geerlingguy.apache
     - geerlingguy.php
+    - geerlingguy.apache-php-fpm
     - geerlingguy.composer
     - geerlingguy.mysql
     - yatesr.timezone
     - role: geerlingguy.nodejs
       nodejs_version: '6.x'
       nodejs_install_npm_user: vagrant
-      nodejs_npm_global_packages: 
+      nodejs_npm_global_packages:
         - name: gulp
 
   post_tasks:
