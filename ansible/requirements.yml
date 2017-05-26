@@ -6,3 +6,4 @@
 - src: geerlingguy.mysql
 - src: geerlingguy.nodejs
 - src: yatesr.timezone
+- src: angstwad.docker_ubuntu

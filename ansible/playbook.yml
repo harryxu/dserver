@@ -79,6 +79,7 @@
     - geerlingguy.apache-php-fpm
     - geerlingguy.composer
     - geerlingguy.mysql
+    - angstwad.docker_ubuntu
     - yatesr.timezone
     - role: geerlingguy.nodejs
       nodejs_version: '6.x'
