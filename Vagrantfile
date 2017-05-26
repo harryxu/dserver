@@ -73,6 +73,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   SHELL
 
   config.vm.provision "ansible_local" do |ansible|
+    ansible.extra_vars = { ansible_ssh_user: 'vagrant', vagrant: true, zsh_user: 'vagrant' }
     ansible.provisioning_path   = "/vagrant/ansible"
     ansible.playbook            = "playbook.yml"
     ansible.galaxy_roles_path   = "ansible/roles"

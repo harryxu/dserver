@@ -4,6 +4,8 @@
   vars:
     timezone: Asia/Shanghai
 
+    zsh_antigen_theme: "avit"
+
     # Apache vars
     apache_remove_default_vhost: true
     apache_create_vhosts: true
@@ -74,6 +76,7 @@
         - vim
 
   roles:
+    - viasite-ansible.zsh
     - geerlingguy.apache
     - geerlingguy.php
     - geerlingguy.apache-php-fpm
