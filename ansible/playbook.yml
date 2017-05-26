@@ -16,7 +16,9 @@
           AllowOverride All
           Require all granted
         </Directory>
-        ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/data/www"
+        <FilesMatch "\.php$">
+          SetHandler "proxy:fcgi://127.0.0.1:9000"
+        </FilesMatch>
 
     # PHP vars
     php_enable_webserver: true
