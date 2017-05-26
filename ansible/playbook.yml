@@ -63,6 +63,9 @@
     - apt_repository:
         repo: 'ppa:ondrej/php'
 
+    - apt_repository:
+        repo: 'ppa:ondrej/apache2'
+
   tasks:
     - name: Install required softwares
       apt: name={{ item }} state=present
