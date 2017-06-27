@@ -4,6 +4,12 @@
   vars:
     timezone: Asia/Shanghai
 
+
+    zsh_antigen_bundles:
+      - { name: docker, command: docker }
+      - { name: docker-compose, command: docker-compose }
+      - git-extras
+
     zsh_antigen_theme: "avit"
 
     # Apache vars
