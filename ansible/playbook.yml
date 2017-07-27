@@ -4,14 +4,6 @@
   vars:
     timezone: Asia/Shanghai
 
-
-    zsh_antigen_bundles:
-      - { name: docker, command: docker }
-      - { name: docker-compose, command: docker-compose }
-      - git-extras
-
-    zsh_antigen_theme: "avit"
-
     # Apache vars
     apache_remove_default_vhost: true
     apache_create_vhosts: true
@@ -52,6 +44,7 @@
       - php7.0-pdo
       - php7.0-opcache
       - php-apcu
+      - php7.0-sybase
 
     # MySQL vars
     mysql_root_username: root
@@ -82,7 +75,6 @@
         - vim
 
   roles:
-    - viasite-ansible.zsh
     - geerlingguy.apache
     - geerlingguy.php
     - geerlingguy.apache-php-fpm
@@ -90,6 +82,15 @@
     - geerlingguy.mysql
     - angstwad.docker_ubuntu
     - yatesr.timezone
+
+    - role: gantsign.oh-my-zsh
+      users:
+        - username: vagrant
+          oh_my_zsh:
+            theme: avit
+            plugins:
+              - git
+
     - role: geerlingguy.nodejs
       nodejs_version: '6.x'
       nodejs_install_npm_user: vagrant

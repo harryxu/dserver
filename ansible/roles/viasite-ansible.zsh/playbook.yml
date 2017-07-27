@@ -1,7 +1,0 @@
----
-- hosts: all
-  vars:
-    # your variables here
-    zsh_autosuggestions_bind_key: "^U"
-  roles:
-    - viasite-ansible.zsh
