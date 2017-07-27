@@ -1,14 +1,14 @@
 # 概瑞开发服务器
 
 ## 简介
-概瑞开发服务器是使用 Vagrant 来做虚拟机管理，操作系统采用的是64位的ubuntu16.04，然后通过 Ansible 来配置虚拟机里所需安装的软件和配置等。
+概瑞开发服务器是使用 Vagrant 来做虚拟机管理，操作系统采用的是64位的Ubuntu16.04，然后通过 Ansible 来配置虚拟机里所需安装的软件和配置等。
 
 主要适合用于PHP、Node.js等以Web开发为主的使用。
 
 已安装的软件:
 
 - [PHP](http://php.net/) & [Composer](https://getcomposer.org/)
-- [Node.js](https://nodejs.org)
+- [Node.js](https://nodejs.org) & [Yarn](https://yarnpkg.com)
 -  [Apache](http://httpd.apache.org/)
 -  [MySQL](http://www.mysql.com/)
 -  [Git](http://git-scm.com/)
@@ -23,7 +23,7 @@
 > 由于虚拟机中的操作系统使用的是64位系统，所以需要在BIOS中开启CPU的虚拟化。
 > 几个开启CPU虚拟化的参考网页：[参考1](http://support1.lenovo.com.cn/lenovo/wsi/htmls/detail_12668799330965621.html), [参考2](http://www.tongyongpe.com/n/201408/442.html), [参考3](http://www.newyx.net/gl/215905_1.htm)
 
-然后将本项目通过git克隆下来，然后进入项目目录运行 `vagrant up --provider=virtualbox`。
+克隆后进入项目目录运行 `vagrant up --provider=virtualbox`。
 
     git clone https://github.com/harryxu/dserver.git
     cd dserver
