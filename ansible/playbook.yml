@@ -73,6 +73,7 @@
       with_items:
         - git
         - vim
+        - autojump
 
   roles:
     - geerlingguy.apache
@@ -90,6 +91,7 @@
             theme: avit
             plugins:
               - git
+              - autojump
 
     - role: geerlingguy.nodejs
       nodejs_version: '6.x'
