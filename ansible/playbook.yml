@@ -73,6 +73,7 @@
       with_items:
         - git
         - vim
+        - tmux
 
   roles:
     - geerlingguy.apache
