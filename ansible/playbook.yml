@@ -74,6 +74,7 @@
         - git
         - vim
         - tmux
+        - autojump
 
   roles:
     - geerlingguy.apache
@@ -91,6 +92,7 @@
             theme: avit
             plugins:
               - git
+              - autojump
 
     - role: geerlingguy.nodejs
       nodejs_version: '6.x'
