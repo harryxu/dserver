@@ -1,0 +1,23 @@
+---
+
+- git:
+    repo: https://github.com/sindresorhus/pure.git
+    dest: /home/vagrant/.pure
+
+- file:
+    src: /home/vagrant/.pure/async.zsh
+    dest: /usr/local/share/zsh/site-functions/async
+    state: link
+
+- file:
+    src: /home/vagrant/.pure/pure.zsh
+    dest: /usr/local/share/zsh/site-functions/prompt_pure_setup
+    state: link
+
+- name: pure prompt config
+  blockinfile:
+    path: /home/vagrant/.zshrc
+    block: |
+      autoload -U promptinit; promptinit
+      PURE_GIT_PULL=0
+      prompt pure

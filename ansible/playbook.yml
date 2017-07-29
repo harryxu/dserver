@@ -60,6 +60,9 @@
         password: '1'
         priv: "*.*:ALL"
 
+    # Nodejs
+    nodejs_version: '6.x'
+
   pre_tasks:
     - apt_repository:
         repo: 'ppa:ondrej/php'
@@ -88,16 +91,12 @@
       users:
         - username: vagrant
           oh_my_zsh:
-            theme: avit
+            theme: ""
             plugins:
               - git
               - autojump
 
-    - role: geerlingguy.nodejs
-      nodejs_version: '6.x'
-      nodejs_install_npm_user: vagrant
-      nodejs_npm_global_packages:
-        - name: gulp
+    - geerlingguy.nodejs
 
   post_tasks:
     - apt_key:
@@ -113,3 +112,5 @@
       apt: name={{ item }} state=present
       with_items:
         - yarn
+
+    - include: tasks/pure-prompt.yml
