@@ -115,3 +115,4 @@
         - yarn
 
     - include: tasks/pure-prompt.yml
+    - include: tasks/tmux-conf.yml

@@ -18,6 +18,8 @@
   blockinfile:
     path: /home/vagrant/.zshrc
     block: |
+      export LANG="en_US.UTF-8"
+      export LC_ALL="en_US.UTF-8"
       autoload -U promptinit; promptinit
       PURE_GIT_PULL=0
       prompt pure

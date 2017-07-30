@@ -1,0 +1,16 @@
+---
+
+- name: Clone oh my tmux
+  git:
+    repo: https://github.com/gpakosz/.tmux.git
+    dest: /home/vagrant/.tmux
+  become: yes
+  become_user: vagrant
+
+- name: link tmux.conf
+  file:
+    src: /home/vagrant/.tmux/.tmux.conf
+    dest: /home/vagrant/.tmux.conf
+    state: link
+  become: yes
+  become_user: vagrant
