@@ -1,5 +1,7 @@
 # 概瑞开发服务器
 
+![DServer](http://i.imgur.com/iAts2c1.png)
+
 ## 简介
 概瑞开发服务器是使用 Vagrant 来做虚拟机管理，操作系统采用的是64位的Ubuntu16.04，然后通过 Ansible 来配置虚拟机里所需安装的软件和配置等。
 
