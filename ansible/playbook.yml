@@ -37,7 +37,7 @@
       - php7.0-json
       - php7.0-xml
       - php7.0-mbstring
-      - php-sqlite3
+      - php7.0-sqlite3
       - php7.0-mcrypt
       - php7.0-fileinfo
       - php7.0-mysql
@@ -45,6 +45,7 @@
       - php7.0-opcache
       - php-apcu
       - php7.0-sybase
+      - php7.0-zip
 
     # MySQL vars
     mysql_root_username: root
