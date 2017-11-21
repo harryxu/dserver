@@ -63,3 +63,5 @@ Temporary Items
 .idea
 /android-sdk
 /*.log
+
+Vagrantfile.my

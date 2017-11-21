@@ -83,3 +83,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
 end
+
+my_vagrantfile = File.expand_path('../Vagrantfile.my', __FILE__)
+load my_vagrantfile if File.exists?(my_vagrantfile)
