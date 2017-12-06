@@ -79,7 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible.galaxy_roles_path   = "ansible/roles"
     ansible.verbose             = true
     ansible.install             = true
-    ansible.sudo                = true
+    ansible.become              = "root"
   end
 
 end
