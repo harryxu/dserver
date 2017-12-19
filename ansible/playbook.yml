@@ -1,6 +1,6 @@
 ---
 - hosts: all
-
+  sudo: yes
   vars:
     timezone: Asia/Shanghai
 
