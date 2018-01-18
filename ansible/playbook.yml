@@ -38,6 +38,7 @@
 
     php_fpm_daemon: php7.1-fpm
     php_fpm_conf_path: "/etc/php/7.1/fpm"
+    php_fpm_pool_conf_path: "/etc/php/7.1/fpm/pool.d/www.conf"
 
     php_packages:
       - php7.1-fpm
