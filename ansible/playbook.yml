@@ -26,6 +26,19 @@
     php_enable_php_fpm: true
     php_fpm_listen: "127.0.0.1:9000"
     php_fpm_listen_allowed_clients: "127.0.0.1"
+    php_conf_paths:
+      - /etc/php/7.1/fpm
+      - /etc/php/7.1/apache2
+      - /etc/php/7.1/cli
+
+    php_extension_conf_paths:
+      - /etc/php/7.1/fpm/conf.d
+      - /etc/php/7.1/apache2/conf.d
+      - /etc/php/7.1/cli/conf.d
+
+    php_fpm_daemon: php7.1-fpm
+    php_fpm_conf_path: "/etc/php/7.1/fpm"
+
     php_packages:
       - php7.1-fpm
       - php7.1-common
