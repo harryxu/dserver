@@ -84,6 +84,9 @@
     - apt_repository:
         repo: 'ppa:ondrej/apache2'
 
+    - apt_repository:
+        repo: 'ppa:git-core/ppa'
+
   tasks:
     - name: Install required softwares
       apt: name={{ item }} state=present
