@@ -87,6 +87,22 @@
     - apt_repository:
         repo: 'ppa:git-core/ppa'
 
+    # Microsoft ODBC Driver
+    - apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+    - apt_repository:
+        repo: deb [arch=amd64] https://packages.microsoft.com/ubuntu/16.04/prod xenial main
+        state: present
+    - name: Install mssql packages
+      apt: name={{ item }} state=present
+      with_items:
+        - msodbcsql=13.0.1.0-1
+        - mssql-tools=14.0.2.0-1
+        - unixodbc-dev-utf16
+      environment:
+        ACCEPT_EULA: Y
+
   tasks:
     - name: Install required softwares
       apt: name={{ item }} state=present
