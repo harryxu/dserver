@@ -79,7 +79,7 @@
         priv: "*.*:ALL"
 
     # Nodejs
-    nodejs_version: '6.x'
+    nodejs_version: '9.x'
 
   pre_tasks:
     - apt_repository:
@@ -92,6 +92,7 @@
         repo: 'ppa:git-core/ppa'
 
     # Microsoft ODBC Driver
+    # https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server
     - apt_key:
         url: https://packages.microsoft.com/keys/microsoft.asc
         state: present
