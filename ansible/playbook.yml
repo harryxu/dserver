@@ -60,6 +60,10 @@
       - php7.1-sybase
       - php7.1-zip
 
+    php_pecl_extensions:
+      - sqlsrv
+      - pdo_sqlsrv
+
     # MySQL vars
     mysql_root_username: root
     mysql_root_password: '1'
@@ -125,6 +129,7 @@
   roles:
     - geerlingguy.apache
     - geerlingguy.php
+    - geerlingguy.php-pecl
     - geerlingguy.apache-php-fpm
     - geerlingguy.composer
     - geerlingguy.mysql
@@ -156,6 +161,11 @@
       apt: name={{ item }} state=present
       with_items:
         - yarn
+
+    - file:
+        src: /vagrant/ansible/files/20-sqlsrv.ini
+        dest: '{{ php_fpm_conf_path }}/conf.d/20-sqlsrv.ini'
+        state: link
 
     - include: tasks/pure-prompt.yml
     - include: tasks/tmux-conf.yml
