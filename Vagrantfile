@@ -69,6 +69,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
 
+  $enable_serial_logging = false
+
   config.vm.provision "shell", inline: <<-SHELL
     sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
   SHELL
