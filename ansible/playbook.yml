@@ -162,10 +162,9 @@
       with_items:
         - yarn
 
-    - file:
+    - copy:
         src: /vagrant/ansible/files/20-sqlsrv.ini
         dest: '{{ php_fpm_conf_path }}/conf.d/20-sqlsrv.ini'
-        state: link
 
     - include: tasks/pure-prompt.yml
     - include: tasks/tmux-conf.yml
