@@ -166,5 +166,9 @@
         src: /vagrant/ansible/files/20-sqlsrv.ini
         dest: '{{ php_fpm_conf_path }}/conf.d/20-sqlsrv.ini'
 
+    - copy:
+        src: /vagrant/ansible/files/20-sqlsrv.ini
+        dest: '/etc/php/7.1/cli/conf.d/20-sqlsrv.ini'
+
     - include: tasks/pure-prompt.yml
     - include: tasks/tmux-conf.yml
