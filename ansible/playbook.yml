@@ -93,12 +93,31 @@
 
   tasks:
     - name: Install required softwares
-      apt: name={{ item }} state=present
-      with_items:
-        - git
-        - vim
-        - tmux
-        - autojump
+      apt:
+        pkg:
+          - git
+          - vim
+          - tmux
+          - autojump
+          - apt-transport-https
+          - ca-certificates
+          - curl
+        state: present
+
+    # docker
+    - apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Install docker
+      apt:
+        pkg:
+          - docker-ce
+        state: present
 
     - stat:
         path: /home/vagrant/.vimrc
