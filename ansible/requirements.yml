@@ -3,8 +3,6 @@
 - src: geerlingguy.php
 - src: geerlingguy.apache-php-fpm
 - src: geerlingguy.composer
-- src: geerlingguy.mysql
 - src: geerlingguy.nodejs
 - src: yatesr.timezone
-- src: angstwad.docker_ubuntu
 - src: gantsign.oh-my-zsh
