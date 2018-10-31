@@ -159,9 +159,10 @@
         filename: 'yarn.list'
 
     - name: Install required softwares in post tasks
-      apt: name={{ item }} state=present
-      with_items:
-        - yarn
+      apt:
+        pkg:
+          - yarn
+        state: present
 
     - copy:
         src: /vagrant/ansible/files/20-sqlsrv.ini
