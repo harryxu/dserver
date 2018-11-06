@@ -119,6 +119,15 @@
           - docker-ce
         state: present
 
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-Linux-x86_64"
+        dest: "/usr/local/bin/docker-compose"
+        force: true
+        owner: "root"
+        group: "root"
+        mode: "0755"
+
     - stat:
         path: /home/vagrant/.vimrc
       register: vimrc
