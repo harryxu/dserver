@@ -1,6 +1,6 @@
-data/*
-!data/www/
-!data/files/
+/data/*
+!/data/www/
+!/data/files/
 
 # Created by http://www.gitignore.io
 

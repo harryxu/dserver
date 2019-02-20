@@ -5,6 +5,9 @@
 # Before you first run vagrant up, please install vagrant-vbguest plugin:
 # vagrant plugin install vagrant-vbguest
 
+require 'rbconfig'
+is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -46,8 +49,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
+  # https://www.jeffgeerling.com/blogs/jeff-geerling/vagrant-nfs-shared-folders
+  # https://snippets.aktagon.com/snippets/609-slow-io-performance-with-vagrant-and-virtualbox-
   config.vm.synced_folder "./data", "/data",
-    group: "www-data", mount_options: ["dmode=775,fmode=775"]
+    :nfs => !is_windows,
+    id: "data-shared"
+    #group: "www-data",
+    #mount_options: ["dmode=775,fmode=775"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
