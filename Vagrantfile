@@ -17,7 +17,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "bento/ubuntu-18.04"
+  #config.vm.box = "bento/ubuntu-18.04"
+  config.vm.box = "geerlingguy/ubuntu1804"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -35,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  #config.vm.network "public_network"
+  config.vm.network "public_network"
 
   # If true, then any SSH connections made will enable agent forwarding.
   # Default value: false
@@ -73,8 +74,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # information on available options.
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1536"]
+
+    # https://serverfault.com/a/453260
+    # https://serverfault.com/a/620198
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    #v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     v.customize ["modifyvm", :id, "--nestedpaging", "off"]
     v.customize ["modifyvm", :id, "--cpuexecutioncap", "60"]
   end
