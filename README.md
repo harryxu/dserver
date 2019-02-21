@@ -11,10 +11,9 @@
 
 - [PHP](http://php.net/) & [Composer](https://getcomposer.org/)
 - [Node.js](https://nodejs.org) & [Yarn](https://yarnpkg.com)
--  [Apache](http://httpd.apache.org/)
--  [MySQL](http://www.mysql.com/)
--  [Git](http://git-scm.com/)
--  [Docker](https://www.docker.com/)
+- [Apache](http://httpd.apache.org/)
+- [Git](http://git-scm.com/)
+- [Docker](https://www.docker.com/)
 - [autojump](https://github.com/joelthelion/autojump)
 - [zsh](http://www.zsh.org/) & [oh-my-zsh](http://ohmyz.sh/)
 - [tmux](http://tmux.sourceforge.net/) 
@@ -58,12 +57,6 @@ web访问有3种方式：
 
 `/data/www` 就是Apache的虚拟主机目录，可以直接把php等程序放在www目录中然后通过web访问测试即可。
 
-### MySQL
-
-MySQL root用户密码为 `1`。
-
-如果要从外部连接虚拟机中的MySQL，使用用户名 `sa` ，密码也是 `1`。
-
 ### 进入虚拟机操作以及vagrant相关命令
 要进入虚拟机系统进行操作，只需要执行 `vagrant ssh` 命令即可。
 
@@ -73,3 +66,12 @@ MySQL root用户密码为 `1`。
 当根目录下的`Vagrantfile`文件发生过变化时，需要执行`vagrant reload`命令来使新的配置生效。
 
 更多关于vagrant的命令以及操作请参考 [官方文档](https://www.vagrantup.com/docs/cli/) 。
+
+### box 文件手动下载地址
+如果通过vagrant下载box文件非常慢，可以通过手动下载。
+
+地址: `https://vagrantcloud.com/geerlingguy/boxes/ubuntu1804/versions/1.0.6/providers/virtualbox.box`
+
+其中的 `1.0.6` 为版本好，可根据最新版本修改
+
+https://app.vagrantup.com/geerlingguy/boxes/ubuntu1804
