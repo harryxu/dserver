@@ -66,12 +66,3 @@ web访问有3种方式：
 当根目录下的`Vagrantfile`文件发生过变化时，需要执行`vagrant reload`命令来使新的配置生效。
 
 更多关于vagrant的命令以及操作请参考 [官方文档](https://www.vagrantup.com/docs/cli/) 。
-
-### box 文件手动下载地址
-如果通过vagrant下载box文件非常慢，可以通过手动下载。
-
-地址: `https://vagrantcloud.com/geerlingguy/boxes/ubuntu1804/versions/1.0.6/providers/virtualbox.box`
-
-其中的 `1.0.6` 为版本好，可根据最新版本修改
-
-https://app.vagrantup.com/geerlingguy/boxes/ubuntu1804
