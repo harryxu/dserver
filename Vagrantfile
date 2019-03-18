@@ -72,7 +72,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
   config.vm.provider "virtualbox" do |v|
-    v.customize ["modifyvm", :id, "--memory", "1536"]
+    v.customize ["modifyvm", :id, "--memory", "1024"]
 
     # https://serverfault.com/a/453260
     # https://serverfault.com/a/620198
