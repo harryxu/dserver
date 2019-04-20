@@ -79,7 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     #v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     v.customize ["modifyvm", :id, "--nestedpaging", "off"]
-    v.customize ["modifyvm", :id, "--cpuexecutioncap", "60"]
+    #v.customize ["modifyvm", :id, "--cpuexecutioncap", "60"]
   end
 
   $enable_serial_logging = false
