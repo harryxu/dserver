@@ -80,6 +80,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     v.customize ["modifyvm", :id, "--nestedpaging", "off"]
     #v.customize ["modifyvm", :id, "--cpuexecutioncap", "60"]
+
+    # Fix slow network, from https://superuser.com/a/850389/98158
+    v.customize ["modifyvm", :id, "--nictype1", "virtio"]
   end
 
   $enable_serial_logging = false
