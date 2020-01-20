@@ -51,9 +51,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # https://www.jeffgeerling.com/blogs/jeff-geerling/vagrant-nfs-shared-folders
   # https://snippets.aktagon.com/snippets/609-slow-io-performance-with-vagrant-and-virtualbox-
+  # https://blog.theodo.com/2017/07/speed-vagrant-synced-folders/
   config.vm.synced_folder "./data", "/data",
     :nfs => !is_windows,
-    id: "data-shared"
+    id: "data-shared",
+    mount_options: ['rw', 'vers=3', 'tcp'],
+    linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
     #group: "www-data",
     #mount_options: ["dmode=775,fmode=775"]
 
