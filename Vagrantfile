@@ -98,6 +98,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible.provisioning_path   = "/vagrant/ansible"
     ansible.playbook            = "playbook.yml"
     ansible.galaxy_roles_path   = "ansible/roles"
+    become                      = true
+    become_user                 = "root"
     ansible.verbose             = true
     ansible.install             = true
   end
