@@ -17,7 +17,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "bento/ubuntu-18.04"
+  #config.vm.box = "generic/ubuntu1804"
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.box_version = "1.0.282"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
