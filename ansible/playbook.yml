@@ -62,16 +62,15 @@
       - sqlsrv-5.6.1  # 更高版本的sqlsrv扩展需要php7.2以上
       - pdo_sqlsrv-5.6.1
 
-
     # Nodejs
     nodejs_version: '12.x'
 
   pre_tasks:
-    - apt_repository:
-        repo: 'ppa:ondrej/php'
 
-    - apt_repository:
-        repo: 'ppa:git-core/ppa'
+    - name: Add php repository
+        shell: curl -sSL https://packages.sury.org/php/README.txt | sudo bash -x
+        args:
+          warn: no
 
     # Microsoft ODBC Driver
     # https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server
@@ -79,7 +78,7 @@
         url: https://packages.microsoft.com/keys/microsoft.asc
         state: present
     - apt_repository:
-        repo: deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main
+        repo: deb [arch=amd64] https://packages.microsoft.com/debian/9/prod stretch main
         state: present
     - name: Install mssql packages
       apt:
@@ -105,30 +104,6 @@
           - zip
           - unzip
         state: present
-
-    # docker
-    - apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
-        state: present
-
-    - name: Install docker
-      apt:
-        pkg:
-          - docker-ce
-        state: present
-
-    - name: Install Docker Compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-Linux-x86_64"
-        dest: "/usr/local/bin/docker-compose"
-        force: true
-        owner: "root"
-        group: "root"
-        mode: "0755"
 
     - stat:
         path: /home/vagrant/.vimrc
@@ -160,20 +135,6 @@
     - geerlingguy.nodejs
 
   post_tasks:
-    - apt_key:
-        url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
-        state: present
-
-    - apt_repository:
-        repo: deb https://dl.yarnpkg.com/debian/ stable main
-        state: present
-        filename: 'yarn.list'
-
-    - name: Install required softwares in post tasks
-      apt:
-        pkg:
-          - yarn
-        state: present
 
     - copy:
         src: /vagrant/ansible/files/20-sqlsrv.ini

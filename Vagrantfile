@@ -18,8 +18,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   #config.vm.box = "generic/ubuntu1804"
-  config.vm.box = "hashicorp/bionic64"
-  config.vm.box_version = "1.0.282"
+  config.vm.box = "debian/stretch64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
