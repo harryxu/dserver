@@ -1,6 +1,7 @@
 ---
-- hosts: localhost
-  remote_user: root
+- name: Converge
+  hosts: all
+  become: true
 
   vars:
     php_enablerepo: "remi,remi-php70"
@@ -29,11 +30,25 @@
           - php7.0-xml
       when: ansible_distribution == 'Debian'
 
+    - name: Set php_packages for Fedora install.
+      set_fact:
+        php_packages:
+          - php
+          - php-cli
+          - php-common
+          - php-devel
+          - php-mbstring
+          - php-opcache
+          - php-pecl-apcu
+          - php-xml
+          - php-json
+      when: ansible_distribution == 'Fedora'
+
   roles:
     - role: geerlingguy.repo-remi
       when: ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
     - role: geerlingguy.repo-dotdeb
       when: ansible_distribution == 'Debian'
-    - geerlingguy.git
-    - geerlingguy.php
-    - role_under_test
+    - role: geerlingguy.git
+    - role: geerlingguy.php
+    - role: geerlingguy.composer

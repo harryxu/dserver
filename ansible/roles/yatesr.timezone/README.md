@@ -5,6 +5,7 @@ timezone
 
 Role Variables
 --------------
+
 ```
 
 # Default timezone.  Must be a valid tz database time zone.
@@ -14,14 +15,13 @@ timezone: UTC
 
 Example Playbook
 -------------------------
-### playbook.yml
 
 ```
 
 ---
 - hosts: all
   roles:
-  - timezone
+  - yatesr.timezone
 
   vars:
    timezone: America/New_York
