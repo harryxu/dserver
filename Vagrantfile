@@ -44,7 +44,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Disable default /vagrant synced folder.
   # http://superuser.com/a/757031
-  config.vm.synced_folder '.', '/vagrant'
+  config.vm.synced_folder '.', '/vagrant',
+    :nfs => !is_windows,
+    id: "data-shared0",
+    mount_options: ['rw', 'vers=3', 'tcp'],
+    linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -93,6 +97,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
+    sudo apt-get update
+    sudo apt-get -y install dirmngr --install-recommends
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+    sudo apt update
+    sudo apt install -y ansible
   SHELL
 
   config.vm.provision "ansible_local" do |ansible|

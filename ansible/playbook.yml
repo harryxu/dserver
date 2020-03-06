@@ -66,10 +66,23 @@
     nodejs_version: '12.x'
 
   pre_tasks:
+    - name: Install required softwares
+      apt:
+        pkg:
+          - git
+          - vim
+          - tmux
+          - autojump
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - zip
+          - unzip
+        state: present
 
     - name: Add php repository
-        shell: curl -sSL https://packages.sury.org/php/README.txt | sudo bash -x
-        args:
+      shell: curl -sSL https://packages.sury.org/php/README.txt | sudo bash -x
+      args:
           warn: no
 
     # Microsoft ODBC Driver
@@ -91,19 +104,6 @@
         ACCEPT_EULA: Y
 
   tasks:
-    - name: Install required softwares
-      apt:
-        pkg:
-          - git
-          - vim
-          - tmux
-          - autojump
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - zip
-          - unzip
-        state: present
 
     - stat:
         path: /home/vagrant/.vimrc
