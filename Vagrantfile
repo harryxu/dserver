@@ -42,28 +42,34 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Default value: false
   # config.ssh.forward_agent = true
 
-  # Disable default /vagrant synced folder.
-  # http://superuser.com/a/757031
-  config.vm.synced_folder '.', '/vagrant',
-    :nfs => !is_windows,
-    id: "data-shared0",
-    mount_options: ['rw', 'vers=3', 'tcp'],
-    linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
+  if is_windows
+    config.vm.synced_folder '.', '/vagrant', type: "virtualbox"
+  else
+    # http://superuser.com/a/757031
+    config.vm.synced_folder '.', '/vagrant', type: "nfs",
+      id: "data-shared0",
+      mount_options: ['rw', 'vers=3', 'tcp'],
+      linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
+  end
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # https://www.jeffgeerling.com/blogs/jeff-geerling/vagrant-nfs-shared-folders
-  # https://snippets.aktagon.com/snippets/609-slow-io-performance-with-vagrant-and-virtualbox-
-  # https://blog.theodo.com/2017/07/speed-vagrant-synced-folders/
-  config.vm.synced_folder "./data", "/data",
-    :nfs => !is_windows,
-    id: "data-shared",
-    mount_options: ['rw', 'vers=3', 'tcp'],
-    linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
-    #group: "www-data",
-    #mount_options: ["dmode=775,fmode=775"]
+
+  if is_windows
+    config.vm.synced_folder "./data", "/data", type: "virtualbox"
+  else
+    # https://www.jeffgeerling.com/blogs/jeff-geerling/vagrant-nfs-shared-folders
+    # https://snippets.aktagon.com/snippets/609-slow-io-performance-with-vagrant-and-virtualbox-
+    # https://blog.theodo.com/2017/07/speed-vagrant-synced-folders/
+    config.vm.synced_folder "./data", "/data", type: "nfs",
+      id: "data-shared",
+      mount_options: ['rw', 'vers=3', 'tcp'],
+      linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
+      #group: "www-data",
+      #mount_options: ["dmode=775,fmode=775"]
+  end
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
