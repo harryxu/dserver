@@ -116,16 +116,32 @@
       become_user: vagrant
       when: vimrc.stat.exists == False
 
-    - name: set zsh as default shell
+    - name: Set zsh as default shell
       become: yes
       user:
         name: vagrant
         shell: /bin/zsh
 
-    - name: clone prezto
+    - stat:
+        path: ~vagrant/prezto
+      register: pz
+    - stat:
+        path: ~vagrant/.zprezto
+      register: zpz
+
+    - name: Download prezto
       become: yes
       become_user: vagrant
-      command: 'git clone --recursive https://github.com/sorin-ionescu/prezto.git "~vagrant/.zprezto"'
+      unarchive:
+        src: https://github.com/harryxu/dserver/releases/download/prezto/prezto.zip
+        dest: ~vagrant/
+        remote_src: yes
+      when: pz.stat.isdir == False and zpz.stat.isdir == False
+
+    - name: Move prezto to .zprezto
+      command: mv ~vagrant/prezto ~vagrant/.zprezto
+      when: pz.stat.isdir and zpz.stat.exists == False
+
 
   roles:
     - geerlingguy.apache
@@ -154,5 +170,4 @@
         src: /vagrant/ansible/files/zpreztorc
         dest: '~vagrant/.zpreztorc'
 
-    - include: tasks/pure-prompt.yml
     - include: tasks/tmux-conf.yml
