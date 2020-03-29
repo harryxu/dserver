@@ -136,11 +136,11 @@
         src: https://github.com/harryxu/dserver/releases/download/prezto/prezto.zip
         dest: ~vagrant/
         remote_src: yes
-      when: pz.stat.isdir == False and zpz.stat.isdir == False
+      when: pz.stat.exists == False and zpz.stat.exists == False
 
     - name: Move prezto to .zprezto
       command: mv ~vagrant/prezto ~vagrant/.zprezto
-      when: pz.stat.isdir and zpz.stat.exists == False
+      when: pz.stat.exists and zpz.stat.exists == False
 
 
   roles:
