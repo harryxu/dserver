@@ -1,11 +1,16 @@
 ---
 
+- stat:
+    path: /home/vagrant/.tmux
+  register: tmuxdir
+
 - name: Clone oh my tmux
   git:
     repo: https://github.com/gpakosz/.tmux.git
     dest: /home/vagrant/.tmux
   become: yes
   become_user: vagrant
+  when: tmuxdir.stat.exists == False
 
 - name: link tmux.conf
   file:

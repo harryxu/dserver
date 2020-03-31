@@ -123,9 +123,6 @@
         shell: /bin/zsh
 
     - stat:
-        path: ~vagrant/prezto
-      register: pz
-    - stat:
         path: ~vagrant/.zprezto
       register: zpz
 
@@ -136,12 +133,7 @@
         src: https://github.com/harryxu/dserver/releases/download/prezto/prezto.zip
         dest: ~vagrant/
         remote_src: yes
-      when: pz.stat.exists == False and zpz.stat.exists == False
-
-    - name: Move prezto to .zprezto
-      command: mv ~vagrant/prezto ~vagrant/.zprezto
-      when: pz.stat.exists and zpz.stat.exists == False
-
+      when: zpz.stat.exists == False
 
   roles:
     - geerlingguy.apache
