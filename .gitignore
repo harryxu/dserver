@@ -2,6 +2,8 @@
 !/data/www/
 !/data/files/
 
+.env
+
 # Created by http://www.gitignore.io
 
 #!! ERROR: va is undefined. Use list command to see defined gitignore types !!#

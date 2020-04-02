@@ -12,6 +12,10 @@ is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  # Enable the vagrant-env plugin. https://github.com/gosuri/vagrant-env
+  config.env.enable 
+
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
@@ -22,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  # config.vm.box_url = "http://gr:gros@case.bigecko.com/os/boxcutter-ubuntu1604.box"
+  config.vm.box_url = "http://192.168.18.212:8080/os/dserver.box"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -101,7 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   $enable_serial_logging = false
 
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "shell", run: ENV["PROVISION_RUN"], inline: <<-SHELL
     sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
     sudo apt-get update
     sudo apt-get -y install dirmngr --install-recommends
@@ -110,7 +114,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo apt install -y ansible
   SHELL
 
-  config.vm.provision "ansible_local" do |ansible|
+  config.vm.provision "ansible_local", run: ENV["PROVISION_RUN"] do |ansible|
     ansible.provisioning_path   = "/vagrant/ansible"
     ansible.playbook            = "playbook.yml"
     ansible.galaxy_roles_path   = "ansible/roles"

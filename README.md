@@ -3,7 +3,7 @@
 ![DServer](http://i.imgur.com/iAts2c1.png)
 
 ## 简介
-概瑞开发服务器是使用 Vagrant 来做虚拟机管理，操作系统采用的是64位的Ubuntu16.04，然后通过 Ansible 来配置虚拟机里所需安装的软件和配置等。
+概瑞开发服务器是使用 Vagrant 来做虚拟机管理，操作系统采用的是debian，然后通过 Ansible 来配置虚拟机里所需安装的软件和配置等。
 
 主要适合用于PHP、Node.js等以Web开发为主的使用。
 
@@ -13,9 +13,8 @@
 - [Node.js](https://nodejs.org) & [Yarn](https://yarnpkg.com)
 - [Apache](http://httpd.apache.org/)
 - [Git](http://git-scm.com/)
-- [Docker](https://www.docker.com/)
 - [autojump](https://github.com/joelthelion/autojump)
-- [zsh](http://www.zsh.org/) & [oh-my-zsh](http://ohmyz.sh/)
+- [zsh](http://www.zsh.org/) & [prezto](https://github.com/sorin-ionescu/prezto)
 - [tmux](http://tmux.sourceforge.net/) 
 
 ## 安装
@@ -24,12 +23,18 @@
 > 由于虚拟机中的操作系统使用的是64位系统，所以需要在BIOS中开启CPU的虚拟化。
 > 几个开启CPU虚拟化的参考网页：[参考1](http://support1.lenovo.com.cn/lenovo/wsi/htmls/detail_12668799330965621.html), [参考2](http://www.tongyongpe.com/n/201408/442.html), [参考3](http://www.newyx.net/gl/215905_1.htm)
 
-克隆后进入项目目录运行 `vagrant up --provider=virtualbox`。
+克隆并初始化：
 
+```shell
     git clone https://github.com/harryxu/dserver.git
     cd dserver
     vagrant plugin install vagrant-vbguest
+    vagrant plugin install vagrant-env
+
+    cp .env.example .env # 复制.env文件后打开根据需求修改环境配置
+
     vagrant up --provider=virtualbox
+```
 
 vagrant up之前，建议安装vagrant-vbguest插件，以上已包含安装命令。
 
