@@ -14,19 +14,24 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Enable the vagrant-env plugin. https://github.com/gosuri/vagrant-env
-  config.env.enable 
+  if Vagrant.has_plugin?("vagrant-env")
+    config.env.enable
+  end
+
+  provision_run = ENV["PROVISION_RUN"] || 'once'
 
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  #config.vm.box = "generic/ubuntu1804"
   config.vm.box = "debian/stretch64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://192.168.18.212:8080/os/dserver.box"
+  if ENV['BOX_URL']
+    config.vm.box_url = ENV['BOX_URL']
+  end
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -105,7 +110,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   $enable_serial_logging = false
 
-  config.vm.provision "shell", run: ENV["PROVISION_RUN"], inline: <<-SHELL
+  config.vm.provision "shell", run: provision_run, inline: <<-SHELL
     sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
     sudo apt-get update
     sudo apt-get -y install dirmngr --install-recommends
@@ -114,7 +119,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo apt install -y ansible
   SHELL
 
-  config.vm.provision "ansible_local", run: ENV["PROVISION_RUN"] do |ansible|
+  config.vm.provision "ansible_local", run: provision_run do |ansible|
     ansible.provisioning_path   = "/vagrant/ansible"
     ansible.playbook            = "playbook.yml"
     ansible.galaxy_roles_path   = "ansible/roles"
