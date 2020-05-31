@@ -119,7 +119,7 @@
       register: vimrc
 
     - name: Copy vimrc
-      command: cp /vagrant/files/vimrc /home/vagrant/.vimrc
+      command: cp /vagrant/ansible/files/vimrc /home/vagrant/.vimrc
       become: yes
       become_user: vagrant
       when: vimrc.stat.exists == False

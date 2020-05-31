@@ -113,7 +113,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   $enable_serial_logging = false
 
   config.vm.provision "shell", run: provision_run, inline: <<-SHELL
-    sudo cp /vagrant/files/apt/sources.list /etc/apt/sources.list
+    sudo cp /vagrant/ansible/files/apt/sources.list /etc/apt/sources.list
     sudo apt-get update
     sudo apt-get -y install dirmngr --install-recommends
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367

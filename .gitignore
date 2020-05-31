@@ -1,6 +1,7 @@
 /data/*
 !/data/www/
 !/data/files/
+!/data/mysql/
 
 .env
 
