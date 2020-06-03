@@ -53,12 +53,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Default value: false
   # config.ssh.forward_agent = true
 
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
   if is_windows
-    config.vm.synced_folder '.', '/vagrant', type: "virtualbox"
+    config.vm.synced_folder './ansible', '/vagrant/ansible', type: "virtualbox"
   else
     # http://superuser.com/a/757031
-    config.vm.synced_folder '.', '/vagrant', type: "nfs",
-      id: "data-shared0",
+    config.vm.synced_folder './ansible', '/vagrant/ansible', type: "nfs",
       mount_options: ['rw', 'vers=3', 'tcp'],
       linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
   end
@@ -75,7 +76,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # https://snippets.aktagon.com/snippets/609-slow-io-performance-with-vagrant-and-virtualbox-
     # https://blog.theodo.com/2017/07/speed-vagrant-synced-folders/
     config.vm.synced_folder "./data", "/data", type: "nfs",
-      id: "data-shared",
       mount_options: ['rw', 'vers=3', 'tcp'],
       linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
       #group: "www-data",
