@@ -80,7 +80,7 @@
           - git
           - vim
           - zsh
-          - tmux
+          # - tmux # Uncomment if need tmux
           - autojump
           - apt-transport-https
           - ca-certificates
@@ -171,4 +171,4 @@
         src: /vagrant/ansible/files/zpreztorc
         dest: '~vagrant/.zpreztorc'
 
-    - include: tasks/tmux-conf.yml
+    # - include: tasks/tmux-conf.yml # Uncomment if need tmux
