@@ -54,6 +54,7 @@
       - php7.3-sqlite3
       - php7.3-mysql
       - php7.3-pdo
+      - php7.3-soap
       # - php7.3-opcache
       - php-apcu
       - php7.3-zip
