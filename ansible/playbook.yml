@@ -55,6 +55,7 @@
       - php7.3-mysql
       - php7.3-pdo
       - php7.3-soap
+      - php7.3-bcmath
       # - php7.3-opcache
       - php-apcu
       - php7.3-zip
@@ -66,7 +67,7 @@
         #- pdo_sqlsrv-5.6.1
 
     # Nodejs
-    nodejs_version: '12.x'
+    nodejs_version: '14.x'
 
     # Docker
     docker_edition: 'ce'
